@@ -1,0 +1,45 @@
+{
+  "name": "cbe-system",
+  "version": "1.0.0",
+  "description": "CBE System - Computer Based Exam untuk sekolah",
+  "productName": "CBE System",
+  "author": "Muhammad Yazif Farras <farrasyazif@gmail.com>",
+  "private": true,
+  "scripts": {
+    "dev": "ELECTRON_RUN_AS_NODE= cross-env APP_MODE=guru quasar dev -m electron",
+    "dev:guru": "ELECTRON_RUN_AS_NODE= cross-env APP_MODE=guru quasar dev -m electron",
+    "dev:siswa": "ELECTRON_RUN_AS_NODE= cross-env APP_MODE=siswa quasar dev -m electron",
+    "build": "cross-env APP_MODE=guru quasar build -m electron -b builder",
+    "build:guru": "cross-env APP_MODE=guru quasar build -m electron -b builder",
+    "build:siswa": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
+    "build:guru:linux": "cross-env APP_MODE=guru quasar build -m electron -b builder",
+    "build:guru:win": "cross-env APP_MODE=guru quasar build -m electron -b builder",
+    "build:siswa:linux": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
+    "build:siswa:win": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
+    "lint": "eslint --ext .js,.vue ./src",
+    "postinstall": "electron-rebuild -f -w better-sqlite3"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.16.14",
+    "better-sqlite3": "^12.9.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "katex": "^0.16.47",
+    "pinia": "^3.0.4",
+    "quasar": "^2.19.3",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "ws": "^8.20.1"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
+    "@quasar/app-vite": "^2.6.0",
+    "cross-env": "^10.1.0",
+    "electron": "^41.5.0",
+    "electron-builder": "^26.8.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.32.0",
+    "sass": "^1.99.0",
+    "vite": "^5.4.0"
+  }
+}

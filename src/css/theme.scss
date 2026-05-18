@@ -1,0 +1,343 @@
+/* ============================================
+   CBE SYSTEM — DESIGN TOKENS
+   Light: Clean Academic | Dark: Modern Dark
+============================================ */
+
+/* === LIGHT MODE === */
+:root,
+[data-theme="light"],
+.body--light {
+  --c-bg:           #f0f4ff;
+  --c-surface:      #ffffff;
+  --c-surface-2:    #f5f8ff;
+  --c-surface-3:    #eef2fb;
+
+  --c-text:         #0f1f35;
+  --c-text-2:       #3a5070;
+  --c-text-3:       #7a96b5;
+  --c-text-inv:     #ffffff;
+
+  --c-border:       #dde3f0;
+  --c-border-2:     #c5d0e8;
+
+  --c-accent:       #1a3a5c;
+  --c-accent-2:     #2e6da4;
+  --c-accent-soft:  #eef2fb;
+  --c-accent-hover: #245a8f;
+
+  --c-success:      #1a6b3c;
+  --c-success-bg:   #e8f5ee;
+  --c-warning:      #8a5e00;
+  --c-warning-bg:   #fff8e6;
+  --c-danger:       #9b1c1c;
+  --c-danger-bg:    #fef2f2;
+  --c-info:         #1a3a5c;
+  --c-info-bg:      #eef2fb;
+
+  --c-timer:        #1a3a5c;
+  --c-timer-urgent: #dc2626;
+
+  --c-nav-bg:       #1a3a5c;
+  --c-nav-text:     rgba(255,255,255,0.55);
+  --c-nav-active:   #ffffff;
+  --c-nav-active-bg:rgba(255,255,255,0.12);
+  --c-nav-hover-bg: rgba(255,255,255,0.07);
+
+  --c-opt-bg:       #ffffff;
+  --c-opt-hover:    #f5f8ff;
+  --c-opt-active:   #eef2fb;
+  --c-opt-border:   #dde3f0;
+  --c-opt-active-b: #1a3a5c;
+  --c-opt-text:     #0f1f35;
+  --c-opt-active-t: #1a3a5c;
+  --c-badge-bg:     #eef2fb;
+  --c-badge-t:      #1a3a5c;
+  --c-badge-bg-a:   #1a3a5c;
+  --c-badge-t-a:    #ffffff;
+
+  --c-progress-bg:  #dde3f0;
+  --c-progress:     #1a3a5c;
+
+  --c-shadow:       0 1px 3px rgba(15,31,53,0.06), 0 4px 16px rgba(15,31,53,0.08);
+  --c-shadow-lg:    0 4px 6px rgba(15,31,53,0.06), 0 10px 40px rgba(15,31,53,0.12);
+  --c-shadow-focus: 0 0 0 3px rgba(26,58,92,0.15);
+
+  --font:           'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-mono:      'JetBrains Mono', monospace;
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      14px;
+  --radius-xl:      20px;
+}
+
+/* === DARK MODE === */
+[data-theme="dark"],
+.body--dark {
+  --c-bg:           #0d1117;
+  --c-surface:      #141824;
+  --c-surface-2:    #1a2035;
+  --c-surface-3:    #1e2845;
+
+  --c-text:         #e2e8f8;
+  --c-text-2:       #8a97b8;
+  --c-text-3:       #4a5578;
+  --c-text-inv:     #0d1117;
+
+  --c-border:       #1e2a45;
+  --c-border-2:     #2a3a5a;
+
+  --c-accent:       #4c6ef5;
+  --c-accent-2:     #7c9dff;
+  --c-accent-soft:  #171e3a;
+  --c-accent-hover: #6585f8;
+
+  --c-success:      #4ade80;
+  --c-success-bg:   #052e16;
+  --c-warning:      #fbbf24;
+  --c-warning-bg:   #1c1400;
+  --c-danger:       #f87171;
+  --c-danger-bg:    #1f0707;
+  --c-info:         #7c9dff;
+  --c-info-bg:      #0f1530;
+
+  --c-timer:        #7c9dff;
+  --c-timer-urgent: #f87171;
+
+  --c-nav-bg:       #0d1117;
+  --c-nav-text:     #3a4a6a;
+  --c-nav-active:   #e2e8f8;
+  --c-nav-active-bg:rgba(76,110,245,0.15);
+  --c-nav-hover-bg: rgba(76,110,245,0.08);
+
+  --c-opt-bg:       #141824;
+  --c-opt-hover:    #1a2035;
+  --c-opt-active:   #171e3a;
+  --c-opt-border:   #1e2a45;
+  --c-opt-active-b: #4c6ef5;
+  --c-opt-text:     #8a97b8;
+  --c-opt-active-t: #7c9dff;
+  --c-badge-bg:     #1e2a45;
+  --c-badge-t:      #4a5a88;
+  --c-badge-bg-a:   #4c6ef5;
+  --c-badge-t-a:    #ffffff;
+
+  --c-progress-bg:  #1e2a45;
+  --c-progress:     #4c6ef5;
+
+  --c-shadow:       0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+  --c-shadow-lg:    0 4px 6px rgba(0,0,0,0.3), 0 10px 40px rgba(0,0,0,0.5);
+  --c-shadow-focus: 0 0 0 3px rgba(76,110,245,0.25);
+
+  --font:           'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-mono:      'JetBrains Mono', monospace;
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      14px;
+  --radius-xl:      20px;
+}
+
+/* === BASE === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--c-bg);
+  color: var(--c-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-border-2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-text-3); }
+
+/* === PAGE TRANSITION === */
+.page-enter-active, .page-leave-active { transition: all 0.25s ease; }
+.page-enter-from { opacity: 0; transform: translateY(8px); }
+.page-leave-to   { opacity: 0; transform: translateY(-4px); }
+
+/* === OPSI SOAL (exam mode) === */
+.opsi-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--c-opt-bg);
+  border: 1.5px solid var(--c-opt-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 10px;
+
+  &:hover {
+    background: var(--c-opt-hover);
+    border-color: var(--c-border-2);
+    transform: translateX(2px);
+  }
+
+  &.selected {
+    background: var(--c-opt-active);
+    border-color: var(--c-opt-active-b);
+  }
+
+  .opsi-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    background: var(--c-badge-bg);
+    color: var(--c-badge-t);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  &.selected .opsi-badge {
+    background: var(--c-badge-bg-a);
+    color: var(--c-badge-t-a);
+  }
+
+  .opsi-text {
+    color: var(--c-opt-text);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &.selected .opsi-text { color: var(--c-opt-active-t); }
+}
+
+/* === TIMER === */
+.exam-timer {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--c-timer);
+  letter-spacing: 1px;
+
+  &.urgent {
+    color: var(--c-timer-urgent);
+    animation: timerPulse 1s ease infinite;
+  }
+}
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* === NOMOR SOAL SIDEBAR === */
+.soal-num {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--c-surface-2);
+  color: var(--c-text-3);
+  border: 1px solid var(--c-border);
+
+  &:hover {
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
+    border-color: var(--c-accent);
+  }
+
+  &.answered {
+    background: var(--c-accent);
+    color: white;
+    border-color: var(--c-accent);
+  }
+
+  &.current {
+    background: var(--c-accent-2);
+    color: white;
+    border-color: var(--c-accent-2);
+    box-shadow: var(--c-shadow-focus);
+  }
+}
+
+/* === BADGE TIPE === */
+.badge-pg {
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.3px;
+}
+.badge-essay {
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.3px;
+}
+.badge-aktif {
+  background: var(--c-success-bg);
+  color: var(--c-success);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.body--dark .badge-pg   { background: #1e3a6e; color: #7cb8ff; }
+.body--dark .badge-essay { background: #3d2800; color: #fbbf24; }
+
+/* === THEME TOGGLE === */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--c-border);
+  background: var(--c-surface-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  color: var(--c-text-2);
+
+  &:hover {
+    background: var(--c-accent-soft);
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+}
+
+/* === LOADING SKELETON === */
+@keyframes skeleton {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--c-surface-2) 25%,
+    var(--c-surface-3) 50%,
+    var(--c-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
+  border-radius: var(--radius-sm);
+}

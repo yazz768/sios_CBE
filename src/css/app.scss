@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+@import './quasar.variables.scss';
+@import './theme.scss';
+
+// Navigasi soal (tombol kecil di sidebar exam)
+.soal-nav-btn {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  font-size: 12px;
+  padding: 0;
+}
+
+// Blokir seleksi teks saat ujian
+.exam-no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+// Truncate text panjang di tabel
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Override warna Quasar drawer & toolbar mengikuti theme
+.q-drawer {
+  background: var(--c-nav-bg) !important;
+}
+.q-toolbar {
+  background: var(--c-surface) !important;
+  border-bottom: 0.5px solid var(--c-border) !important;
+  color: var(--c-text) !important;
+}
+.q-page-container {
+  background: var(--c-bg) !important;
+}
