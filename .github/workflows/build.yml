@@ -1,0 +1,172 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - 'v*'          # Trigger saat push tag seperti v1.0.0, v1.2.3
+
+permissions:
+  contents: write   # Diperlukan untuk membuat GitHub Release
+
+jobs:
+  # ─── Build Guru (Linux + Windows) ───────────────────────────
+  build-guru-linux:
+    name: Guru — Linux AppImage
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
+
+      - name: Build Guru (Linux)
+        run: npm run build:guru:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: guru-linux
+          path: dist/electron/Packaged/*.AppImage
+
+  build-guru-windows:
+    name: Guru — Windows Installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
+
+      - name: Build Guru (Windows)
+        run: npm run build:guru:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: guru-windows
+          path: dist/electron/Packaged/*.exe
+
+  # ─── Build Siswa (Linux + Windows) ──────────────────────────
+  build-siswa-linux:
+    name: Siswa — Linux AppImage
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
+
+      - name: Build Siswa (Linux)
+        run: npm run build:siswa:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: siswa-linux
+          path: dist/electron/Packaged/*.AppImage
+
+  build-siswa-windows:
+    name: Siswa — Windows Installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
+
+      - name: Build Siswa (Windows)
+        run: npm run build:siswa:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: siswa-windows
+          path: dist/electron/Packaged/*.exe
+
+  # ─── Buat GitHub Release dengan semua file ──────────────────
+  release:
+    name: Create GitHub Release
+    needs:
+      - build-guru-linux
+      - build-guru-windows
+      - build-siswa-linux
+      - build-siswa-windows
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download semua artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: release-files
+          merge-multiple: true
+
+      - name: List files
+        run: ls -lh release-files/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Sios CBE ${{ github.ref_name }}
+          body: |
+            ## Sios CBE ${{ github.ref_name }}
+
+            ### Download
+
+            | File | Platform | Mode |
+            |------|----------|------|
+            | `SiosCBE-Guru-Linux.AppImage` | Linux | Guru (Server) |
+            | `SiosCBE-Guru-Windows.exe` | Windows | Guru (Server) |
+            | `SiosCBE-Siswa-Linux.AppImage` | Linux | Siswa (Client) |
+            | `SiosCBE-Siswa-Windows.exe` | Windows | Siswa (Client) |
+
+            ### Cara Pakai
+            - **Guru**: Jalankan app Guru di laptop/PC guru. Catat IP yang tampil di dashboard.
+            - **Siswa**: Jalankan app Siswa di tiap komputer siswa. Masukkan IP guru + token ujian.
+          files: release-files/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
