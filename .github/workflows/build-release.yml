@@ -33,7 +33,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y libfuse2 libgconf-2-4 libxss1 \
+          sudo apt-get install -y libfuse2 libxss1 \
             python3 python3-pip build-essential
 
       - name: Install npm dependencies (skip postinstall)

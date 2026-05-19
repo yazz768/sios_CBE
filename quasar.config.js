@@ -84,7 +84,7 @@ export default configure(function (/* ctx */) {
           target: [{ target: 'dmg', arch: ['arm64'] }],
           artifactName: isSiswa ? 'SiosCBE-Siswa-Mac.${ext}' : 'SiosCBE-Guru-Mac.${ext}',
           category: 'public.app-category.education',
-          icon: 'src-electron/icons/icon.png',
+          icon: 'src-electron/icons/linux-512x512.png',
           // Unsigned — tidak perlu Apple Developer certificate
           identity: null,
           hardenedRuntime: false
