@@ -14,8 +14,10 @@
     "build:siswa": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
     "build:guru:linux": "cross-env APP_MODE=guru quasar build -m electron -b builder",
     "build:guru:win": "cross-env APP_MODE=guru quasar build -m electron -b builder",
+    "build:guru:mac": "cross-env APP_MODE=guru quasar build -m electron -b builder",
     "build:siswa:linux": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
     "build:siswa:win": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
+    "build:siswa:mac": "cross-env APP_MODE=siswa quasar build -m electron -b builder",
     "lint": "eslint --ext .js,.vue ./src",
     "postinstall": "electron-rebuild -f -w better-sqlite3"
   },

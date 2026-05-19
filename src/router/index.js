@@ -29,7 +29,8 @@ const siswaRoutes = [
     children: [
       { path: '', component: () => import('pages/siswa/LoginPage.vue') },
       { path: 'info-ujian', component: () => import('pages/siswa/InfoUjianPage.vue') },
-      { path: 'exam', component: () => import('pages/siswa/ExamPage.vue') }
+      { path: 'exam', component: () => import('pages/siswa/ExamPage.vue') },
+      { path: 'selesai', component: () => import('pages/siswa/SelesaiPage.vue') }
     ]
   },
   { path: '/:catchAll(.*)*', redirect: '/' }

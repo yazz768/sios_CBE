@@ -1,217 +1,208 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="exam-no-select">
-    <!-- Header Exam -->
-    <q-header class="bg-primary">
-      <q-toolbar>
-        <q-toolbar-title class="text-weight-bold" style="font-size: 15px">
-          {{ examStore.ujianInfo?.judul }}
-        </q-toolbar-title>
+  <q-layout view="hHh lpR fFf" class="exam-layout exam-no-select">
+
+    <!-- ── TOPBAR ─────────────────────────────────────────────── -->
+    <q-header class="exam-header" :elevation="0">
+      <q-toolbar class="exam-toolbar">
+        <div class="exam-judul col text-truncate">{{ examStore.ujianInfo?.judul }}</div>
 
         <q-space />
 
-        <div class="text-caption opacity-80 q-mr-md">{{ examStore.namaSiswa }}</div>
+        <div class="exam-nama q-mr-md">{{ examStore.namaSiswa }}</div>
 
-        <!-- Progress jawaban -->
-        <q-chip
-          dense
-          color="white"
-          text-color="primary"
-          icon="quiz"
-          class="q-mr-sm"
-        >
+        <!-- Soal counter -->
+        <div class="exam-chip exam-chip-soal q-mr-sm">
+          <q-icon name="assignment" size="14px" class="q-mr-xs" />
           {{ examStore.answeredCount }}/{{ examStore.soalList.length }}
-        </q-chip>
+        </div>
+
+        <!-- Auto-save indicator -->
+        <div class="exam-save-indicator q-mr-sm">
+          <q-icon
+            v-if="!isConnected" name="wifi_off" size="14px" class="exam-icon-offline"
+          />
+          <q-icon
+            v-else-if="examStore.isAutoSaving" name="sync" size="14px" class="exam-icon-sync exam-spin"
+          />
+          <q-icon
+            v-else-if="examStore.lastAutoSaved" name="cloud_done" size="14px" class="exam-icon-saved"
+          />
+        </div>
 
         <!-- Timer -->
-        <div
-          class="text-h6 text-weight-bold q-px-md q-py-xs rounded-borders"
-          :class="examStore.timerIsRed ? 'bg-negative timer-blink' : 'bg-white-2'"
-        >
-          <q-icon name="timer" class="q-mr-xs" />
+        <div class="exam-timer" :class="{
+          'exam-timer-urgent': examStore.timerIsRed,
+          'exam-timer-warn': !examStore.timerIsRed && examStore.timerDisplay.split(':')[0] === '00' && parseInt(examStore.timerDisplay.split(':')[1]) < 10
+        }">
+          <q-icon name="timer" size="15px" class="q-mr-xs" />
           {{ examStore.timerDisplay }}
         </div>
       </q-toolbar>
 
-      <!-- Status bar: auto-save & koneksi -->
-      <div class="row items-center q-px-md q-pb-xs" style="font-size: 11px; min-height: 20px">
-        <span v-if="!isConnected" class="text-negative text-weight-bold">
-          <q-icon name="wifi_off" size="12px" class="q-mr-xs" />Koneksi terputus — jawaban tidak tersimpan
-        </span>
-        <span v-else-if="examStore.isAutoSaving" class="text-white opacity-60">
-          <q-icon name="sync" size="12px" class="q-mr-xs" />Menyimpan...
-        </span>
-        <span v-else-if="examStore.lastAutoSaved" class="text-white opacity-60">
-          <q-icon name="cloud_done" size="12px" class="q-mr-xs" />Tersimpan {{ formatSaveTime(examStore.lastAutoSaved) }}
-        </span>
+      <!-- Progress bar -->
+      <div class="exam-progress-wrap">
+        <div class="exam-progress-bar" :style="{ width: `${navProgress}%` }" />
       </div>
 
-      <!-- Progress bar -->
-      <q-linear-progress
-        :value="examStore.progress / 100"
-        color="positive"
-        track-color="blue-9"
-        size="4px"
-      />
+      <!-- Koneksi banner (compact) -->
+      <div v-if="!isConnected" class="exam-offline-bar">
+        <q-icon name="wifi_off" size="13px" class="q-mr-xs" />
+        Koneksi terputus — jawaban tidak tersimpan
+      </div>
     </q-header>
 
-    <!-- Sidebar: Navigator Soal -->
+    <!-- ── SIDEBAR NAVIGASI ────────────────────────────────────── -->
     <q-drawer
       :model-value="true"
       side="left"
-      :width="200"
-      bordered
-      :style="{ background: 'var(--c-nav-bg)' }"
+      :width="110"
+      class="exam-drawer"
       :overlay="false"
       persistent
     >
       <q-scroll-area class="fit">
         <div class="q-pa-sm">
-          <div class="text-caption text-grey-7 q-mb-sm text-uppercase">Navigasi Soal</div>
+          <div class="exam-nav-label">NAVIGASI</div>
 
-          <div class="row q-gutter-xs">
-            <q-btn
+          <div class="exam-nav-grid">
+            <div
               v-for="(soal, idx) in examStore.soalList"
               :key="soal.id"
-              :label="String(idx + 1)"
-              :color="getSoalBtnColor(idx)"
-              :flat="examStore.currentIndex !== idx"
-              :unelevated="examStore.currentIndex === idx"
-              dense
-              class="soal-nav-btn"
+              class="exam-nav-btn"
+              :class="{
+                'exam-nav-current': idx === examStore.currentIndex,
+                'exam-nav-answered': examStore.isAnswered(soal.id) && idx !== examStore.currentIndex
+              }"
               @click="examStore.currentIndex = idx"
-            />
+            >
+              {{ idx + 1 }}
+            </div>
           </div>
 
-          <q-separator class="q-my-sm" />
-
-          <div class="text-caption text-grey-6">
-            <q-badge color="positive" />
-            Dijawab ({{ examStore.answeredCount }}/{{ examStore.soalList.length }})
+          <div class="exam-nav-counter">
+            <span class="exam-nav-counter-dot" />
+            {{ examStore.answeredCount }}/{{ examStore.soalList.length }}
           </div>
         </div>
       </q-scroll-area>
     </q-drawer>
 
-    <!-- Area Konten Soal -->
+    <!-- ── AREA SOAL ───────────────────────────────────────────── -->
     <q-page-container>
-      <q-page padding class="q-pb-xl">
-        <!-- Banner koneksi terputus -->
-        <q-banner
-          v-if="!isConnected"
-          class="bg-negative text-white q-mb-md"
-          dense
-          rounded
-        >
-          <template #avatar><q-icon name="wifi_off" /></template>
-          Koneksi ke server guru terputus. Jawaban tidak akan tersimpan sampai koneksi pulih. Tetap kerjakan ujian.
-        </q-banner>
+      <q-page padding class="exam-page q-pb-xl">
 
         <template v-if="examStore.currentSoal">
-          <!-- Nomor & Tipe Soal -->
+          <!-- Nomor & Tipe -->
           <div class="row items-center q-mb-md">
-            <div class="text-h6 col">
+            <div class="exam-soal-num col">
               Soal {{ examStore.currentIndex + 1 }}
-              <q-badge
-                :color="examStore.currentSoal.tipe === 'PG' ? 'blue' : 'orange'"
-                :label="examStore.currentSoal.tipe"
-                class="q-ml-sm"
-              />
+              <span class="exam-tipe-badge q-ml-sm"
+                :class="examStore.currentSoal.tipe === 'PG' ? 'exam-badge-pg' : 'exam-badge-essay'">
+                {{ examStore.currentSoal.tipe }}
+              </span>
             </div>
           </div>
 
-          <!-- Teks Pertanyaan -->
-          <q-card flat bordered class="q-mb-md">
-            <q-card-section>
-              <div class="text-body1">
-                <MathText :text="examStore.currentSoal.pertanyaan" />
-              </div>
-            </q-card-section>
-          </q-card>
+          <!-- Pertanyaan -->
+          <div class="exam-question-box q-mb-md">
+            <div class="exam-question-text">
+              <MathText :text="examStore.currentSoal.pertanyaan" />
+            </div>
+          </div>
 
-          <!-- Gambar Soal (jika ada) -->
+          <!-- Gambar Soal -->
           <div v-if="examStore.currentSoal.gambar_url" class="text-center q-mb-lg">
             <img
               :src="`${examStore.baseUrl}${examStore.currentSoal.gambar_url}`"
-              style="max-width: 100%; max-height: 400px; border-radius: 8px; pointer-events: none"
+              class="exam-soal-img"
               draggable="false"
             />
           </div>
 
-          <!-- Pilihan Ganda -->
+          <!-- PG Options -->
           <template v-if="examStore.currentSoal.tipe === 'PG'">
-            <q-option-group
-              :model-value="examStore.jawaban[examStore.currentSoal.id]"
-              :options="pgOptions"
-              color="primary"
-              keep-color
-              @update:model-value="v => examStore.setJawaban(examStore.currentSoal.id, v)"
-            >
-              <template #label="opt">
-                <div class="text-body1 q-py-xs"><MathText :text="opt.label" /></div>
-              </template>
-            </q-option-group>
+            <div class="exam-pg-options">
+              <div
+                v-for="opt in pgOptions"
+                :key="opt.value"
+                class="exam-pg-option"
+                :class="{ 'exam-pg-selected': examStore.jawaban[examStore.currentSoal.id] === opt.value }"
+                @click="examStore.setJawaban(examStore.currentSoal.id, opt.value)"
+              >
+                <div class="exam-pg-badge">{{ opt.value }}</div>
+                <div class="exam-pg-label"><MathText :text="opt.rawLabel" /></div>
+                <q-icon
+                  v-if="examStore.jawaban[examStore.currentSoal.id] === opt.value"
+                  name="check_circle"
+                  size="18px"
+                  class="exam-pg-check"
+                />
+              </div>
+            </div>
           </template>
 
           <!-- Essay -->
           <template v-else>
-            <q-input
-              :model-value="examStore.jawaban[examStore.currentSoal.id] || ''"
-              type="textarea"
-              outlined
-              label="Tulis jawaban Anda di sini..."
-              :rows="6"
-              autogrow
-              @update:model-value="v => examStore.setJawaban(examStore.currentSoal.id, v)"
-            />
+            <div class="exam-essay-wrap">
+              <q-input
+                :model-value="examStore.jawaban[examStore.currentSoal.id] || ''"
+                type="textarea"
+                outlined
+                label="Tulis jawaban Anda di sini..."
+                :rows="6"
+                autogrow
+                class="exam-essay-input"
+                @update:model-value="v => examStore.setJawaban(examStore.currentSoal.id, v)"
+              />
+            </div>
           </template>
+
+          <!-- Navigasi Prev/Next -->
+          <div class="row justify-between q-mt-lg">
+            <q-btn
+              unelevated icon="chevron_left" label="Sebelumnya"
+              class="exam-btn-prev"
+              :disable="examStore.currentIndex === 0"
+              @click="examStore.currentIndex--"
+            />
+            <q-btn
+              v-if="examStore.currentIndex < examStore.soalList.length - 1"
+              unelevated icon-right="chevron_right" label="Berikutnya"
+              class="exam-btn-next"
+              @click="examStore.currentIndex++"
+            />
+            <q-btn
+              v-else
+              unelevated icon="check_circle" label="Submit Ujian"
+              class="exam-btn-submit"
+              @click="confirmSubmit"
+            />
+          </div>
         </template>
 
-        <!-- Navigasi Prev/Next -->
-        <div class="row justify-between q-mt-lg">
-          <q-btn
-            unelevated
-            color="grey-4"
-            text-color="dark"
-            icon="chevron_left"
-            label="Sebelumnya"
-            :disable="examStore.currentIndex === 0"
-            @click="examStore.currentIndex--"
-          />
-
-          <q-btn
-            v-if="examStore.currentIndex < examStore.soalList.length - 1"
-            unelevated
-            color="primary"
-            icon-right="chevron_right"
-            label="Berikutnya"
-            @click="examStore.currentIndex++"
-          />
-          <q-btn
-            v-else
-            unelevated
-            color="positive"
-            icon="check_circle"
-            label="Submit Ujian"
-            @click="confirmSubmit"
-          />
-        </div>
       </q-page>
     </q-page-container>
 
-    <!-- Floating Submit Button -->
-    <q-footer bordered :style="{ background: 'var(--c-surface)', borderColor: 'var(--c-border)' }">
-      <q-toolbar>
+    <!-- ── BOTTOM BAR ──────────────────────────────────────────── -->
+    <q-footer class="exam-footer" :elevation="0">
+      <q-toolbar class="exam-footer-toolbar">
+        <div class="exam-progress-label">
+          <span class="exam-progress-answered">{{ examStore.answeredCount }}</span>
+          <span class="exam-progress-total">/{{ examStore.soalList.length }} soal dijawab</span>
+          <div class="exam-mini-bar-wrap">
+            <div class="exam-mini-bar" :style="{ width: `${navProgress}%` }" />
+          </div>
+        </div>
         <q-space />
         <q-btn
-          unelevated
-          color="positive"
-          icon="send"
-          label="Submit Ujian"
-          @click="confirmSubmit"
+          unelevated icon="send" label="SUBMIT UJIAN"
+          class="exam-submit-btn"
           :loading="submitting"
+          @click="confirmSubmit"
         />
       </q-toolbar>
     </q-footer>
+
   </q-layout>
 </template>
 
@@ -223,6 +214,13 @@ import { useExamStore } from 'stores/exam'
 import MathText from 'components/MathText.vue'
 
 const router = useRouter()
+
+// Progress berbasis posisi navigasi (currentIndex), bukan jumlah jawaban
+const navProgress = computed(() =>
+  examStore.soalList.length
+    ? Math.round((examStore.currentIndex / examStore.soalList.length) * 100)
+    : 0
+)
 const $q = useQuasar()
 const examStore = useExamStore()
 
@@ -230,50 +228,33 @@ const submitting = ref(false)
 const isConnected = ref(true)
 let pingInterval = null
 
-// ─── CSP (Computer Screen Preview) ───────────────────────────
-// Pendekatan stream persisten:
-//   1. Minta source ID SEKALI via IPC → Wayland/KDE hanya tampilkan dialog portal SEKALI
-//   2. Buat MediaStream via getUserMedia dengan source ID tersebut
-//   3. Capture frame dari stream via canvas setiap detik — TANPA dialog lagi
-//   4. Kirim frame via WebSocket ke server guru
-
+// ─── CSP ─────────────────────────────────────────────────────
 let cspWs = null
-let cspStream = null      // MediaStream — hidup selama ujian
-let cspVideo = null       // Hidden video element
-let cspCanvas = null      // Canvas untuk capture frame
-let cspCtx = null         // Canvas 2D context
+let cspStream = null
+let cspVideo = null
+let cspCanvas = null
+let cspCtx = null
 let cspSendInterval = null
 
 async function startCsp () {
   if (!examStore.guruIP || !examStore.pesertaId) return
-
-  // ── 1. Inisialisasi screen capture ──
-  // Menggunakan getDisplayMedia() yang diintercept oleh setDisplayMediaRequestHandler
-  // di electron-main.js — layar pertama dipilih otomatis, TANPA dialog apapun.
-  // Kompatibel: Windows (silent), Linux X11 (silent), Linux Wayland/KDE (no portal).
   try {
     cspStream = await navigator.mediaDevices.getDisplayMedia({
       video: { width: 960, height: 540 },
       audio: false
     })
-
     cspVideo = document.createElement('video')
     cspVideo.srcObject = cspStream
     cspVideo.muted = true
     await cspVideo.play()
-
     cspCanvas = document.createElement('canvas')
     cspCanvas.width = 960
     cspCanvas.height = 540
     cspCtx = cspCanvas.getContext('2d')
-  } catch (_) {
-    // Capture gagal — WS tetap jalan untuk status online/offline siswa
-  }
+  } catch (_) {}
 
-  // ── 2. Hubungkan WebSocket ke server guru ──
   try {
     cspWs = new WebSocket(`ws://${examStore.guruIP}:3000`)
-
     cspWs.onopen = () => {
       cspWs.send(JSON.stringify({
         type: 'csp:register',
@@ -281,8 +262,6 @@ async function startCsp () {
         nama: examStore.namaSiswa,
         token: examStore.tokenInput
       }))
-
-      // ── 3. Kirim frame setiap detik — canvas capture, TIDAK ada IPC ──
       cspSendInterval = setInterval(() => {
         if (!cspWs || cspWs.readyState !== WebSocket.OPEN) return
         if (!cspCtx || !cspVideo || cspVideo.readyState < 2) return
@@ -296,18 +275,14 @@ async function startCsp () {
         }))
       }, 1000)
     }
-
     cspWs.onerror = () => {}
     cspWs.onclose = () => { clearInterval(cspSendInterval) }
   } catch (_) {}
 }
 
 function stopCsp () {
-  // Hentikan interval pengiriman frame
   clearInterval(cspSendInterval)
   cspSendInterval = null
-
-  // Hentikan media stream (lepas akses kamera/layar di OS)
   if (cspStream) {
     cspStream.getTracks().forEach(t => t.stop())
     cspStream = null
@@ -315,8 +290,6 @@ function stopCsp () {
   cspVideo = null
   cspCanvas = null
   cspCtx = null
-
-  // Kirim csp:end dan tutup WebSocket
   if (cspWs) {
     if (cspWs.readyState === WebSocket.OPEN) {
       cspWs.send(JSON.stringify({
@@ -331,8 +304,7 @@ function stopCsp () {
   }
 }
 
-// ─── Koneksi ──────────────────────────────────────────────────
-
+// ─── Koneksi ─────────────────────────────────────────────────
 async function checkConnection () {
   try {
     const controller = new AbortController()
@@ -351,16 +323,15 @@ function formatSaveTime (date) {
 }
 
 // ─── Computed ─────────────────────────────────────────────────
-
 const pgOptions = computed(() => {
   const s = examStore.currentSoal
   if (!s) return []
   return [
-    { label: `A. ${s.opsi_a}`, value: 'A' },
-    { label: `B. ${s.opsi_b}`, value: 'B' },
-    { label: `C. ${s.opsi_c}`, value: 'C' },
-    { label: `D. ${s.opsi_d}`, value: 'D' }
-  ].filter(o => o.label.split('. ')[1])
+    { value: 'A', rawLabel: s.opsi_a || '' },
+    { value: 'B', rawLabel: s.opsi_b || '' },
+    { value: 'C', rawLabel: s.opsi_c || '' },
+    { value: 'D', rawLabel: s.opsi_d || '' }
+  ].filter(o => o.rawLabel)
 })
 
 function getSoalBtnColor (idx) {
@@ -371,13 +342,11 @@ function getSoalBtnColor (idx) {
 }
 
 // ─── Submit ───────────────────────────────────────────────────
-
 function confirmSubmit () {
   const unanswered = examStore.soalList.length - examStore.answeredCount
   const msg = unanswered > 0
     ? `Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin submit?`
     : 'Semua soal sudah dijawab. Yakin ingin submit ujian?'
-
   $q.dialog({
     title: 'Konfirmasi Submit',
     message: msg,
@@ -391,69 +360,58 @@ async function doSubmit () {
   submitting.value = true
   try {
     await examStore.submitExam()
-    await finishExam('Ujian berhasil dikumpulkan!')
+    await finishExam(false)
   } catch (err) {
     $q.notify({ type: 'negative', message: `Gagal submit: ${err.message}` })
     submitting.value = false
+    return
   }
 }
 
-// Urutan: submit → navigate → endExam → reset
-async function finishExam (message) {
+async function finishExam (isTimeout = false) {
   stopCsp()
-  $q.notify({ type: 'positive', message, timeout: 3000 })
-  router.push('/')
-  // endExam dipanggil SETELAH router.push — kiosk dilepas setelah navigasi
+
+  // Simpan data sebelum reset agar bisa ditampilkan di halaman selesai
+  examStore.setCompletionData({
+    nama: examStore.namaSiswa,
+    judulUjian: examStore.ujianInfo?.judul || '',
+    mataPelajaran: examStore.ujianInfo?.mata_pelajaran || '',
+    totalSoal: examStore.soalList.length,
+    dijawab: examStore.answeredCount,
+    waktuSelesai: new Date().toISOString(),
+    isTimeout
+  })
+
+  examStore.$reset()
+  router.push('/selesai')
+
   if (typeof window !== 'undefined' && window.electronAPI) {
     await window.electronAPI.endExam()
   }
-  examStore.$reset()
 }
 
-// Watch isSubmitted untuk handle auto-submit dari timer
 watch(() => examStore.isSubmitted, async (submitted) => {
   if (!submitted || submitting.value) return
-  await finishExam('Waktu habis! Ujian otomatis dikumpulkan.')
+  await finishExam(true)
 })
 
-// ─── Lockdown Renderer ────────────────────────────────────────
-
-function blockContextMenu (e) {
-  e.preventDefault()
-}
-
+// ─── Lockdown ─────────────────────────────────────────────────
+function blockContextMenu (e) { e.preventDefault() }
 function blockShortcuts (e) {
   const blocked = (
-    // Semua F-key
-    e.key === 'F1' || e.key === 'F2' || e.key === 'F3' ||
-    e.key === 'F4' || e.key === 'F5' || e.key === 'F6' ||
-    e.key === 'F7' || e.key === 'F8' || e.key === 'F9' ||
-    e.key === 'F10' || e.key === 'F11' || e.key === 'F12' ||
-    // DevTools & inspect
+    e.key === 'F1' || e.key === 'F2' || e.key === 'F3' || e.key === 'F4' ||
+    e.key === 'F5' || e.key === 'F6' || e.key === 'F7' || e.key === 'F8' ||
+    e.key === 'F9' || e.key === 'F10' || e.key === 'F11' || e.key === 'F12' ||
     (e.ctrlKey && e.shiftKey && ['i','I','j','J','c','C','k','K','delete','Delete'].includes(e.key)) ||
-    // Tab, window, clipboard Ctrl combos
     (e.ctrlKey && ['r','R','u','U','w','W','n','N','t','T','a','A','s','S','p','P','c','C','v','V','x','X','z','Z','y','Y'].includes(e.key)) ||
-    // Alt combinations
     (e.altKey && ['F4','Tab','Escape',' '].includes(e.key)) ||
-    // Meta/Super key
-    e.metaKey ||
-    // Escape & PrintScreen
-    e.key === 'Escape' ||
-    e.key === 'PrintScreen'
+    e.metaKey || e.key === 'Escape' || e.key === 'PrintScreen'
   )
-  if (blocked) {
-    e.preventDefault()
-    e.stopPropagation()
-    return false
-  }
+  if (blocked) { e.preventDefault(); e.stopPropagation(); return false }
 }
-
 function forceFocus () {
-  if (typeof window !== 'undefined' && window.electronAPI) {
-    window.electronAPI.focusWindow()
-  }
+  if (typeof window !== 'undefined' && window.electronAPI) window.electronAPI.focusWindow()
 }
-
 const blockDrag = (e) => e.preventDefault()
 const blockSelect = (e) => e.preventDefault()
 const blockCopyPaste = (e) => { e.preventDefault(); e.stopPropagation() }
@@ -462,33 +420,20 @@ onMounted(async () => {
   if (typeof window !== 'undefined' && window.electronAPI) {
     await window.electronAPI.startExam()
   }
-
   examStore.startTimer()
   examStore.startAutoSave()
   startCsp()
   checkConnection()
   pingInterval = setInterval(checkConnection, 10000)
-
-  // Blokir klik kanan
   document.addEventListener('contextmenu', blockContextMenu, { capture: true })
-
-  // Blokir shortcut — terapkan di document DAN window agar tidak ada celah
   document.addEventListener('keydown', blockShortcuts, { capture: true })
   window.addEventListener('keydown', blockShortcuts, { capture: true })
-
-  // Blokir drag & drop file dari luar
   document.addEventListener('dragover', blockDrag, { capture: true })
   document.addEventListener('drop', blockDrag, { capture: true })
-
-  // Blokir seleksi teks
   document.addEventListener('selectstart', blockSelect, { capture: true })
-
-  // Blokir copy, cut, paste via DOM event (menangkap klik kanan & semua metode lain)
   document.addEventListener('copy', blockCopyPaste, { capture: true })
   document.addEventListener('cut', blockCopyPaste, { capture: true })
   document.addEventListener('paste', blockCopyPaste, { capture: true })
-
-  // Refocus paksa saat window kehilangan fokus
   window.addEventListener('blur', forceFocus)
 })
 
@@ -506,8 +451,6 @@ onUnmounted(() => {
   document.removeEventListener('cut', blockCopyPaste, { capture: true })
   document.removeEventListener('paste', blockCopyPaste, { capture: true })
   window.removeEventListener('blur', forceFocus)
-
-  // Safety net — pastikan kiosk dilepas kalau komponen unmount tanpa submit
   if (typeof window !== 'undefined' && window.electronAPI) {
     window.electronAPI.endExam()
   }
@@ -515,17 +458,241 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.timer-blink {
-  animation: blink 1s step-start infinite;
+/* ── TOPBAR — M3 Surface ──────────────────────────────────── */
+:global(.body--dark) :deep(.exam-header) {
+  background: #1A1C20 !important;
+  border-bottom: 1px solid #383C44 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
 }
-@keyframes blink {
-  50% { opacity: 0.4; }
+:global(.body--light) :deep(.exam-header) {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #C3CAD9 !important;
+  box-shadow: 0 1px 3px rgba(26,28,74,0.08) !important;
 }
 
-/* Izinkan cursor di textarea essay agar siswa bisa mengetik,
-   tapi copy/paste tetap diblok via event listener */
-:deep(.q-textarea textarea) {
-  user-select: text !important;
-  -webkit-user-select: text !important;
+.exam-toolbar { height: 54px; min-height: 54px !important; padding: 0 16px; }
+.exam-judul   { font-size: 14px; font-weight: 700; color: var(--c-text); }
+.exam-nama    { font-size: 12px; color: var(--c-text-2); }
+
+/* Chips */
+.exam-chip {
+  display: flex; align-items: center;
+  padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
 }
+.exam-chip-soal {
+  background: var(--c-accent-soft); border: 1px solid var(--c-border); color: var(--c-accent);
+}
+
+/* Save indicator */
+.exam-save-indicator { display: flex; align-items: center; }
+.exam-icon-offline { color: var(--c-danger) !important; }
+.exam-icon-sync    { color: var(--c-warning) !important; }
+.exam-icon-saved   { color: var(--c-success) !important; }
+@keyframes examSpin { to { transform: rotate(360deg); } }
+.exam-spin { animation: examSpin 1s linear infinite; display: inline-block; }
+
+/* Timer */
+.exam-timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px; font-weight: 700; letter-spacing: 1px;
+  padding: 4px 12px; border-radius: var(--radius-md);
+  display: flex; align-items: center; transition: all 0.3s;
+  background: var(--c-surface-2); color: var(--c-text);
+}
+.exam-timer-warn    { color: var(--c-warning) !important; background: var(--c-warning-bg) !important; }
+.exam-timer-urgent  {
+  color: var(--c-danger) !important; background: var(--c-danger-bg) !important;
+  animation: timerUrgent 1s ease-in-out infinite;
+}
+@keyframes timerUrgent { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Progress bar */
+.exam-progress-wrap { height: 3px; background: var(--c-border); width: 100%; }
+.exam-progress-bar  { height: 100%; background: var(--c-accent); transition: width 0.4s ease; }
+
+/* Offline bar */
+.exam-offline-bar {
+  display: flex; align-items: center;
+  padding: 4px 16px; font-size: 11.5px; font-weight: 600;
+  background: var(--c-danger); color: white;
+}
+
+/* ── DRAWER — M3 Surface ──────────────────────────────────── */
+:global(.body--dark) :deep(.exam-drawer) {
+  background: #1A1C20 !important;
+  border-right: 1px solid #383C44 !important;
+}
+:global(.body--light) :deep(.exam-drawer) {
+  background: #FFFFFF !important;
+  border-right: 1px solid #C3CAD9 !important;
+}
+
+.exam-nav-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.8px;
+  margin-bottom: 10px; padding: 0 2px; color: var(--c-text-3);
+}
+.exam-nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+
+.exam-nav-btn {
+  aspect-ratio: 1; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; user-select: none;
+  background: var(--c-surface-2); border: 1px solid var(--c-border); color: var(--c-text-3);
+}
+.exam-nav-btn:hover {
+  background: var(--c-accent-soft); border-color: var(--c-accent); color: var(--c-accent);
+}
+
+.exam-nav-answered {
+  background: var(--c-accent) !important;
+  border-color: var(--c-accent) !important;
+  color: white !important;
+}
+.exam-nav-current {
+  background: var(--c-accent) !important;
+  border: 2px solid white !important;
+  color: white !important;
+  transform: scale(1.1);
+  box-shadow: var(--m3-elev-2);
+}
+
+.exam-nav-counter {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 12px; font-size: 11px; font-weight: 600; padding: 5px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--c-success-bg); color: var(--c-success);
+}
+.exam-nav-counter-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-success); flex-shrink: 0; }
+
+/* ── PAGE ─────────────────────────────────────────────────── */
+.exam-page { background: transparent !important; }
+
+/* ── SOAL HEADER ──────────────────────────────────────────── */
+.exam-soal-num { font-size: 16px; font-weight: 700; color: var(--c-text); }
+
+.exam-tipe-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700;
+}
+.exam-badge-pg    { background: var(--c-accent-soft); color: var(--c-accent); }
+.exam-badge-essay { background: var(--c-warning-bg);  color: var(--c-warning); }
+
+/* ── QUESTION BOX — M3 Surface ───────────────────────────── */
+.exam-question-box {
+  padding: 18px 20px; border-radius: var(--radius-md);
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
+  box-shadow: var(--m3-elev-1);
+}
+.exam-question-text { font-size: 15px; line-height: 1.7; color: var(--c-text); }
+
+/* ── GAMBAR SOAL ──────────────────────────────────────────── */
+.exam-soal-img {
+  max-width: 100%; max-height: 380px; border-radius: var(--radius-md);
+  pointer-events: none; border: 1px solid var(--c-border);
+}
+
+/* ── PG OPTIONS — M3 Surface ─────────────────────────────── */
+.exam-pg-options { display: flex; flex-direction: column; gap: 8px; }
+.exam-pg-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; border-radius: var(--radius-md); cursor: pointer;
+  transition: all 0.15s; position: relative;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+}
+.exam-pg-option:hover {
+  background: var(--c-surface-2); border-color: var(--c-border-2);
+  transform: translateX(3px);
+}
+.exam-pg-selected {
+  background: var(--c-accent-soft) !important;
+  border-color: var(--c-accent) !important;
+}
+
+.exam-pg-badge {
+  width: 32px; height: 32px; border-radius: var(--radius-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; transition: all 0.15s;
+  background: var(--c-surface-2); color: var(--c-text-3);
+}
+.exam-pg-selected .exam-pg-badge { background: var(--c-accent); color: white; }
+
+.exam-pg-label { flex: 1; font-size: 14px; line-height: 1.5; color: var(--c-text); }
+.exam-pg-check { position: absolute; right: 14px; color: var(--c-success) !important; }
+
+/* ── ESSAY — M3 Outlined ─────────────────────────────────── */
+:deep(.exam-essay-input .q-field__control) {
+  background: var(--c-surface-2) !important;
+  border-radius: var(--radius-md) !important;
+}
+:deep(.exam-essay-input .q-field__control:before) { border-color: var(--c-border) !important; }
+:deep(.exam-essay-input.q-field--focused .q-field__control:after) { border-color: var(--c-accent) !important; }
+:deep(.exam-essay-input .q-field__native),
+:deep(.exam-essay-input textarea) {
+  color: var(--c-text) !important;
+  user-select: text !important; -webkit-user-select: text !important;
+}
+
+:deep(.q-textarea textarea) {
+  user-select: text !important; -webkit-user-select: text !important;
+}
+
+/* ── NAV BUTTONS — M3 Filled / Tonal ────────────────────── */
+.exam-btn-prev {
+  border-radius: 20px !important; font-weight: 600 !important; padding: 8px 20px !important;
+  background: var(--c-surface-2) !important; color: var(--c-text-2) !important;
+  border: 1px solid var(--c-border) !important;
+}
+.exam-btn-prev:hover { background: var(--c-surface-3) !important; }
+
+.exam-btn-next {
+  background: var(--c-accent) !important; color: white !important;
+  border-radius: 20px !important; font-weight: 600 !important; padding: 8px 20px !important;
+  box-shadow: var(--m3-elev-1) !important;
+}
+.exam-btn-next:hover { background: var(--c-accent-hover) !important; }
+
+.exam-btn-submit {
+  background: var(--c-success) !important; color: white !important;
+  border-radius: 20px !important; font-weight: 600 !important;
+  box-shadow: var(--m3-elev-1) !important;
+}
+.exam-btn-submit:hover { filter: brightness(0.9) !important; }
+
+/* ── FOOTER — M3 Surface ─────────────────────────────────── */
+:global(.body--dark) :deep(.exam-footer) {
+  background: #1A1C20 !important;
+  border-top: 1px solid #383C44 !important;
+}
+:global(.body--light) :deep(.exam-footer) {
+  background: #FFFFFF !important;
+  border-top: 1px solid #C3CAD9 !important;
+}
+.exam-footer-toolbar { height: 56px; min-height: 56px !important; padding: 0 16px; }
+
+.exam-progress-label   { display: flex; align-items: center; gap: 6px; }
+.exam-progress-answered { font-size: 18px; font-weight: 800; color: var(--c-success); }
+.exam-progress-total   { font-size: 12px; color: var(--c-text-3); }
+
+.exam-mini-bar-wrap {
+  width: 80px; height: 4px; border-radius: 999px; margin-left: 8px;
+  overflow: hidden; background: var(--c-border);
+}
+.exam-mini-bar {
+  height: 100%; background: var(--c-success);
+  border-radius: 999px; transition: width 0.4s ease;
+}
+
+.exam-submit-btn {
+  background: var(--c-success) !important; color: white !important;
+  border-radius: 20px !important; font-weight: 700 !important;
+  font-size: 13px !important; letter-spacing: 0.5px !important;
+  box-shadow: var(--m3-elev-1) !important;
+}
+.exam-submit-btn:hover { filter: brightness(0.9) !important; }
+
+/* ── MISC ─────────────────────────────────────────────────── */
+.exam-layout { min-height: 100vh; }
+.exam-no-select { user-select: none; -webkit-user-select: none; }
 </style>

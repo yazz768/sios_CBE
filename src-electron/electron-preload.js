@@ -28,6 +28,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('student:submitted', handler)
   },
 
+  // Tutup aplikasi dari halaman selesai ujian
+  closeWindow: () => ipcRenderer.invoke('app:closeWindow'),
+
   // Platform info
   platform: process.platform
 })

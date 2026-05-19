@@ -29,6 +29,9 @@ export const useExamStore = defineStore('exam', () => {
   const currentIndex = ref(0)
   const isSubmitted = ref(false)
 
+  // Data setelah ujian selesai — tidak di-reset oleh $reset()
+  const completionData = ref(null)
+
   // ─── Computed ────────────────────────────────────────────────
 
   const baseUrl = computed(() => guruIP.value ? `http://${guruIP.value}:3000` : '')
@@ -177,6 +180,10 @@ export const useExamStore = defineStore('exam', () => {
     }
   }
 
+  function setCompletionData (data) {
+    completionData.value = data
+  }
+
   function $reset () {
     stopTimer()
     stopAutoSave()
@@ -192,16 +199,17 @@ export const useExamStore = defineStore('exam', () => {
     isSubmitted.value = false
     lastAutoSaved.value = null
     isAutoSaving.value = false
+    // completionData TIDAK di-reset — dibaca oleh SelesaiPage
   }
 
   return {
     guruIP, tokenInput, namaSiswa, pesertaId,
     ujianInfo, soalList, jawaban,
     timeRemaining, currentIndex, isSubmitted,
-    lastAutoSaved, isAutoSaving,
+    lastAutoSaved, isAutoSaving, completionData,
     baseUrl, currentSoal, answeredCount, timerDisplay, timerIsRed, progress,
     verifyToken, joinExam, loadSoal, startTimer, stopTimer,
     autoSave, startAutoSave, stopAutoSave,
-    setJawaban, isAnswered, submitExam, $reset
+    setJawaban, isAnswered, submitExam, setCompletionData, $reset
   }
 })

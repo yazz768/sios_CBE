@@ -1,204 +1,215 @@
 <template>
-  <q-page padding>
-    <div class="text-h5 text-primary q-mb-lg">Buat Ujian Baru</div>
+  <q-page padding class="bu-page">
+
+    <!-- ── PAGE HEADER ─────────────────────────────────── -->
+    <div class="bu-page-title q-mb-xl">Buat Ujian Baru</div>
 
     <div class="row q-gutter-lg">
-      <!-- Kiri: Form Ujian -->
+
+      <!-- ── KIRI: DETAIL UJIAN ──────────────────────── -->
       <div class="col-12 col-md-4">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-h6 q-mb-md">Detail Ujian</div>
+        <div class="bu-card">
+          <div class="bu-card-title q-mb-lg">Detail Ujian</div>
 
-            <div class="q-gutter-sm">
-              <q-input v-model="form.judul" label="Judul Ujian *" outlined />
-              <q-input v-model="form.mata_pelajaran" label="Mata Pelajaran *" outlined />
-              <q-input
-                v-model.number="form.durasi_menit"
-                label="Durasi (menit) *"
-                type="number"
-                outlined
-                min="5"
-                max="180"
-                suffix="menit"
-              />
-            </div>
-
-            <q-separator class="q-my-md" />
-
-            <!-- Opsi acak -->
-            <q-toggle
-              v-model="form.acak_soal"
-              label="Acak urutan soal per siswa"
-              color="primary"
-              class="q-mb-sm"
+          <div class="q-gutter-sm">
+            <q-input v-model="form.judul" label="Judul Ujian *" outlined class="bu-input" />
+            <q-input v-model="form.mata_pelajaran" label="Mata Pelajaran *" outlined class="bu-input" />
+            <q-input
+              v-model.number="form.durasi_menit"
+              label="Durasi (menit) *"
+              type="number"
+              outlined
+              min="5"
+              max="180"
+              suffix="menit"
+              class="bu-input"
             />
+          </div>
 
-            <!-- Reorderable list soal terpilih -->
-            <div class="text-caption text-grey-7 q-mb-xs">
-              Urutan Soal Terpilih
-              <span class="q-ml-xs">({{ pgCount }} PG + {{ essayCount }} Essay)</span>
-            </div>
-            <div v-if="!selectedSoal.length" class="text-caption text-grey-5 q-mb-sm">
-              Belum ada soal dipilih dari tabel kanan
-            </div>
-            <q-list v-else dense bordered separator class="rounded-borders q-mb-sm" style="max-height: 280px; overflow-y: auto">
-              <q-item v-for="(soal, idx) in selectedSoal" :key="soal.id" dense class="q-py-xs">
-                <q-item-section side style="min-width: 24px">
-                  <span class="text-caption text-grey-6">{{ idx + 1 }}</span>
-                </q-item-section>
-                <q-item-section>
-                  <div class="row items-center no-wrap">
-                    <q-badge
-                      dense
-                      :color="soal.tipe === 'PG' ? 'blue' : 'orange'"
-                      :label="soal.tipe"
-                      class="q-mr-xs"
-                      style="flex-shrink:0"
-                    />
-                    <span class="text-caption text-truncate" style="max-width: 140px" :title="soal.pertanyaan">
-                      {{ soal.pertanyaan }}
-                    </span>
-                  </div>
-                </q-item-section>
-                <q-item-section side>
-                  <div class="row items-center">
-                    <q-btn flat round dense icon="keyboard_arrow_up" size="xs" :disable="idx === 0" @click="moveUp(idx)" />
-                    <q-btn flat round dense icon="keyboard_arrow_down" size="xs" :disable="idx === selectedSoal.length - 1" @click="moveDown(idx)" />
-                    <q-btn flat round dense icon="close" size="xs" color="negative" @click="removeFromSelected(idx)" />
-                  </div>
-                </q-item-section>
-              </q-item>
-            </q-list>
+          <div class="bu-divider q-my-md" />
 
-            <q-btn
-              unelevated
-              color="primary"
-              icon="generate"
-              label="Buat Ujian & Generate Token"
-              class="full-width"
-              :disable="!canSubmit"
-              :loading="submitting"
-              @click="buatUjian"
-            />
-          </q-card-section>
-        </q-card>
+          <!-- Toggle acak -->
+          <q-toggle
+            v-model="form.acak_soal"
+            label="Acak urutan soal per siswa"
+            color="primary"
+            class="q-mb-md bu-toggle"
+          />
+
+          <!-- Counter chip -->
+          <div class="bu-counter-chip q-mb-sm">
+            <div class="bu-counter-label">Urutan Soal Terpilih</div>
+            <div class="bu-counter-nums">
+              <span class="bu-counter-pg">{{ pgCount }} PG</span>
+              <span class="bu-counter-sep">+</span>
+              <span class="bu-counter-essay">{{ essayCount }} Essay</span>
+            </div>
+          </div>
+
+          <!-- Reorderable list soal terpilih -->
+          <div v-if="!selectedSoal.length" class="bu-empty-list">
+            Belum ada soal dipilih dari tabel kanan
+          </div>
+          <div v-else class="bu-selected-list q-mb-md">
+            <div
+              v-for="(soal, idx) in selectedSoal"
+              :key="soal.id"
+              class="bu-selected-item"
+            >
+              <span class="bu-item-num">{{ idx + 1 }}</span>
+              <span :class="['bu-item-badge', soal.tipe === 'PG' ? 'bu-badge-pg' : 'bu-badge-essay']">{{ soal.tipe }}</span>
+              <span class="bu-item-text text-truncate">{{ soal.pertanyaan }}</span>
+              <div class="bu-item-actions">
+                <q-btn flat round dense icon="keyboard_arrow_up"   size="xs" :disable="idx === 0"                         @click="moveUp(idx)"            class="bu-reorder-btn" />
+                <q-btn flat round dense icon="keyboard_arrow_down" size="xs" :disable="idx === selectedSoal.length - 1"   @click="moveDown(idx)"          class="bu-reorder-btn" />
+                <q-btn flat round dense icon="close"               size="xs"                                               @click="removeFromSelected(idx)" class="bu-remove-btn" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <q-btn
+            unelevated
+            icon="rocket_launch"
+            label="Buat Ujian & Generate Token"
+            class="full-width bu-btn-submit"
+            :disable="!canSubmit"
+            :loading="submitting"
+            @click="buatUjian"
+          />
+        </div>
       </div>
 
-      <!-- Kanan: Pilih Soal -->
+      <!-- ── KANAN: PILIH SOAL ────────────────────────── -->
       <div class="col">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="row items-center q-gutter-sm q-mb-md">
-              <div class="text-h6 col">Pilih Soal</div>
-              <q-select
-                v-model="filterMapel"
-                :options="mapelOptions"
-                label="Filter Mapel"
-                dense
-                outlined
-                clearable
-                emit-value
-                map-options
-                style="min-width: 160px"
-              />
-              <q-input
-                v-model="searchSoal"
-                label="Cari soal..."
-                dense
-                outlined
-                clearable
-                style="max-width: 220px"
-              >
-                <template #prepend>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </div>
-
-            <q-table
-              :rows="filteredSoal"
-              :columns="soalColumns"
-              row-key="id"
-              flat
-              selection="multiple"
-              v-model:selected="selectedSoal"
-              no-data-label="Tidak ada soal. Tambah soal di Bank Soal terlebih dahulu."
-              :pagination="{ rowsPerPage: 10 }"
-              :loading="guruStore.isLoading"
+        <div class="bu-card">
+          <!-- Header dengan filter -->
+          <div class="row items-center q-gutter-sm q-mb-md">
+            <div class="bu-card-title col">Pilih Soal</div>
+            <q-select
+              v-model="filterMapel"
+              :options="mapelOptions"
+              label="Filter Mapel"
+              dense
+              outlined
+              clearable
+              emit-value
+              map-options
+              style="min-width: 160px"
+              class="bu-filter-select"
+            />
+            <q-select
+              v-model="filterTipe"
+              :options="[
+                { label: 'Semua Tipe', value: '' },
+                { label: 'Pilihan Ganda', value: 'PG' },
+                { label: 'Essay', value: 'Essay' }
+              ]"
+              label="Tipe Soal"
+              dense
+              outlined
+              emit-value
+              map-options
+              style="min-width: 130px"
+              class="bu-filter-select"
+            />
+            <q-input
+              v-model="searchSoal"
+              label="Cari soal..."
+              dense
+              outlined
+              clearable
+              style="max-width: 220px"
+              class="bu-filter-select"
             >
-              <template #body-cell-tipe="props">
-                <q-td :props="props">
-                  <q-badge :color="props.value === 'PG' ? 'blue' : 'orange'" :label="props.value" />
-                </q-td>
+              <template #prepend>
+                <q-icon name="search" size="16px" />
               </template>
-              <template #body-cell-pertanyaan="props">
-                <q-td :props="props">
-                  <div class="text-truncate" style="max-width: 350px" :title="props.value">
-                    {{ props.value }}
-                  </div>
-                </q-td>
-              </template>
-            </q-table>
-          </q-card-section>
-        </q-card>
+            </q-input>
+          </div>
+
+          <q-table
+            :rows="filteredSoal"
+            :columns="soalColumns"
+            row-key="id"
+            flat
+            selection="multiple"
+            v-model:selected="selectedSoal"
+            no-data-label="Tidak ada soal. Tambah soal di Bank Soal terlebih dahulu."
+            :pagination="{ rowsPerPage: 10 }"
+            :loading="guruStore.isLoading"
+            class="bu-table"
+          >
+            <template #body-cell-tipe="props">
+              <q-td :props="props">
+                <span :class="['bu-badge', props.value === 'PG' ? 'bu-badge-pg' : 'bu-badge-essay']">
+                  {{ props.value }}
+                </span>
+              </q-td>
+            </template>
+            <template #body-cell-pertanyaan="props">
+              <q-td :props="props">
+                <div class="text-truncate" style="max-width: 350px" :title="props.value">
+                  {{ props.value }}
+                </div>
+              </q-td>
+            </template>
+          </q-table>
+        </div>
       </div>
     </div>
 
-    <!-- Dialog Hasil: Token Generated -->
+    <!-- ── TOKEN DIALOG ────────────────────────────────── -->
     <q-dialog v-model="showTokenDialog" persistent>
-      <q-card style="min-width: 400px">
-        <q-card-section class="bg-positive text-white">
-          <div class="text-h6">
-            <q-icon name="check_circle" class="q-mr-sm" />
-            Ujian Berhasil Dibuat!
-          </div>
-        </q-card-section>
+      <q-card class="bu-token-card">
+        <!-- Success header -->
+        <div class="bu-token-header">
+          <q-icon name="check_circle" size="32px" class="q-mr-sm" style="color: #10B981" />
+          <div class="bu-token-header-text">Ujian Berhasil Dibuat!</div>
+        </div>
 
-        <q-card-section class="q-pa-lg">
+        <q-card-section class="q-pa-xl">
           <div class="text-center q-mb-lg">
-            <div class="text-caption text-grey-7 q-mb-sm">TOKEN UJIAN</div>
-            <div
-              class="text-h2 text-primary text-weight-bold q-pa-md bg-blue-1 rounded-borders"
-              style="letter-spacing: 0.3em; cursor: pointer"
-              @click="copyToken"
-            >
+            <div class="bu-token-label">TOKEN UJIAN</div>
+            <div class="bu-token-display" @click="copyToken">
               {{ generatedToken }}
             </div>
             <q-btn
               flat
               icon="content_copy"
               label="Salin Token"
-              color="primary"
               size="sm"
-              class="q-mt-sm"
+              class="bu-copy-token-btn q-mt-sm"
               @click="copyToken"
             />
           </div>
 
-          <q-separator class="q-mb-md" />
+          <div class="bu-token-divider q-mb-md" />
 
           <div class="text-center">
-            <div class="text-caption text-grey-7 q-mb-xs">Bagikan ke siswa:</div>
-            <div class="text-body1">
-              <strong>IP Server:</strong> {{ guruStore.serverInfo.ip }}
+            <div class="bu-share-label">Bagikan ke siswa:</div>
+            <div class="bu-share-info">
+              <span class="bu-share-key">IP Server:</span>
+              <span class="bu-share-val">{{ guruStore.serverInfo.ip }}</span>
             </div>
-            <div class="text-body1">
-              <strong>Token:</strong> {{ generatedToken }}
+            <div class="bu-share-info">
+              <span class="bu-share-key">Token:</span>
+              <span class="bu-share-val">{{ generatedToken }}</span>
             </div>
           </div>
         </q-card-section>
 
-        <q-card-actions align="center" class="q-pb-md">
+        <div class="bu-token-actions">
           <q-btn
             unelevated
-            color="primary"
             icon="monitor"
             label="Monitor Ujian"
             :to="`/monitor/${generatedToken}`"
+            class="bu-btn-monitor"
             @click="showTokenDialog = false"
           />
-          <q-btn flat label="Tutup" @click="resetForm" />
-        </q-card-actions>
+          <q-btn flat label="Tutup" class="bu-btn-tutup" @click="resetForm" />
+        </div>
       </q-card>
     </q-dialog>
   </q-page>
@@ -216,6 +227,7 @@ const form = ref({ judul: '', mata_pelajaran: '', durasi_menit: 60, acak_soal: f
 const selectedSoal = ref([])
 const searchSoal = ref('')
 const filterMapel = ref(null)
+const filterTipe = ref('')
 const submitting = ref(false)
 const showTokenDialog = ref(false)
 const generatedToken = ref('')
@@ -245,6 +257,7 @@ const mapelOptions = computed(() => {
 const filteredSoal = computed(() => {
   let list = guruStore.soalList
   if (filterMapel.value) list = list.filter(s => s.mata_pelajaran === filterMapel.value)
+  if (filterTipe.value) list = list.filter(s => s.tipe === filterTipe.value)
   if (searchSoal.value) {
     const q = searchSoal.value.toLowerCase()
     list = list.filter(s => s.pertanyaan.toLowerCase().includes(q) || (s.mata_pelajaran || '').toLowerCase().includes(q))
@@ -303,3 +316,214 @@ function resetForm () {
 
 onMounted(() => guruStore.fetchSoal())
 </script>
+
+<style scoped>
+/* ── PAGE TITLE ────────────────────────────────────────── */
+.bu-page-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #1a5fa8, #0095C8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── M3 SURFACE CARDS ──────────────────────────────────── */
+.bu-card {
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--m3-elev-1);
+}
+
+.bu-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--c-text);
+}
+
+.bu-divider { height: 1px; background: var(--c-border); }
+
+/* ── M3 OUTLINED INPUTS ────────────────────────────────── */
+:deep(.bu-input .q-field__control) {
+  background: var(--c-surface-2) !important;
+  border-radius: var(--radius-md) !important;
+}
+:deep(.bu-input .q-field__control:before) { border-color: var(--c-border) !important; }
+:deep(.bu-input .q-field__control:hover:before) { border-color: var(--c-border-2) !important; }
+:deep(.bu-input .q-field--focused .q-field__control:after) { border-color: var(--c-accent) !important; }
+
+/* ── TOGGLE ────────────────────────────────────────────── */
+:deep(.bu-toggle .q-toggle__track) { opacity: 0.8; }
+
+/* ── COUNTER CHIP — M3 Tonal ───────────────────────────── */
+.bu-counter-chip {
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--c-accent-soft);
+  border: 1px solid var(--c-border);
+}
+.bu-counter-label { font-size: 11px; font-weight: 600; letter-spacing: 0.3px; color: var(--c-text-3); }
+.bu-counter-nums  { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.bu-counter-pg    { color: var(--c-accent); }
+.bu-counter-essay { color: var(--c-warning); }
+.bu-counter-sep   { color: var(--c-text-3); font-weight: 400; }
+
+/* ── EMPTY STATE ───────────────────────────────────────── */
+.bu-empty-list {
+  font-size: 12px;
+  color: var(--c-text-3);
+  text-align: center;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--c-border);
+  margin-bottom: 12px;
+  background: var(--c-surface-2);
+}
+
+/* ── SELECTED SOAL LIST ────────────────────────────────── */
+.bu-selected-list {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--c-border);
+}
+.bu-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--c-border);
+}
+.bu-selected-item:last-child { border-bottom: none; }
+.bu-selected-item:hover { background: var(--c-surface-2); }
+
+.bu-item-num  { color: var(--c-text-3); min-width: 18px; font-variant-numeric: tabular-nums; }
+.bu-item-text { flex: 1; max-width: 140px; color: var(--c-text-2); }
+.bu-item-actions { display: flex; align-items: center; margin-left: auto; }
+.bu-reorder-btn { color: var(--c-text-3) !important; }
+.bu-remove-btn  { color: var(--c-danger) !important; }
+
+/* ── BADGES — M3 Tonal ─────────────────────────────────── */
+.bu-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.bu-badge-pg    { background: var(--c-accent-soft); color: var(--c-accent); }
+.bu-badge-essay { background: var(--c-warning-bg); color: var(--c-warning); }
+
+/* ── SUBMIT BUTTON — M3 Filled ─────────────────────────── */
+.bu-btn-submit {
+  background: var(--c-accent) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  border-radius: 20px !important;
+  height: 46px !important;
+  letter-spacing: 0.3px !important;
+  box-shadow: var(--m3-elev-1) !important;
+  transition: all 0.2s !important;
+}
+.bu-btn-submit:not(:disabled):hover {
+  background: var(--c-accent-hover) !important;
+  box-shadow: var(--m3-elev-2) !important;
+}
+.bu-btn-submit:disabled { opacity: 0.4 !important; }
+
+/* ── FILTER + SEARCH ───────────────────────────────────── */
+:deep(.bu-filter-select .q-field__control) {
+  background: var(--c-surface-2) !important;
+  border-radius: var(--radius-md) !important;
+}
+:deep(.bu-filter-select .q-field__control:before) { border-color: var(--c-border) !important; }
+
+/* ── TABLE ─────────────────────────────────────────────── */
+:deep(.bu-table thead th) {
+  background: transparent !important;
+  font-size: 11px !important; font-weight: 700 !important;
+  letter-spacing: 0.6px !important; text-transform: uppercase !important;
+  color: var(--c-text-3) !important;
+}
+:deep(.bu-table thead tr) { border-bottom: 1px solid var(--c-border) !important; }
+:deep(.bu-table tbody td) { border-bottom: 1px solid var(--c-border) !important; font-size: 13px !important; }
+:deep(.bu-table tbody .selected td) {
+  background: var(--c-accent-soft) !important;
+  border-left: 2px solid var(--c-accent) !important;
+}
+:deep(.bu-table .q-checkbox__inner--truthy .q-checkbox__bg) {
+  background: var(--c-accent) !important;
+  border-color: var(--c-accent) !important;
+}
+
+/* ── TOKEN DIALOG — M3 Surface ─────────────────────────── */
+.bu-token-card {
+  min-width: 420px;
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+}
+:global(.body--light) .bu-token-card {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  box-shadow: var(--m3-elev-4) !important;
+}
+:global(.body--dark) .bu-token-card {
+  background: var(--c-surface-2) !important;
+  border: 1px solid var(--c-border) !important;
+  box-shadow: var(--m3-elev-4) !important;
+}
+
+.bu-token-header {
+  display: flex; align-items: center;
+  padding: 20px 28px 16px; border-bottom: 1px solid var(--c-border);
+}
+.bu-token-header-text { font-size: 17px; font-weight: 800; color: var(--c-text); }
+
+.bu-token-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--c-text-3); margin-bottom: 12px;
+}
+
+.bu-token-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 42px; font-weight: 800; letter-spacing: 0.25em;
+  cursor: pointer; padding: 16px 24px; border-radius: var(--radius-lg);
+  display: inline-block; transition: all 0.2s;
+  background: linear-gradient(90deg, #1a5fa8, #0095C8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  background-color: var(--c-accent-soft);
+  border: 1px solid var(--c-border);
+}
+.bu-token-display:hover { filter: brightness(0.95); }
+
+.bu-copy-token-btn { color: var(--c-accent) !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; }
+.bu-token-divider  { height: 1px; background: var(--c-border); }
+.bu-share-label    { font-size: 11px; color: var(--c-text-3); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.3px; }
+.bu-share-info     { font-size: 14px; margin-bottom: 4px; }
+.bu-share-key      { color: var(--c-text-2); margin-right: 6px; font-weight: 600; }
+.bu-share-val      { font-family: 'JetBrains Mono', monospace; color: var(--c-text); font-weight: 700; }
+
+.bu-token-actions {
+  display: flex; justify-content: center; gap: 10px;
+  padding: 16px 28px; border-top: 1px solid var(--c-border);
+}
+.bu-btn-monitor {
+  background: var(--c-accent) !important;
+  color: white !important; font-weight: 700 !important;
+  border-radius: 20px !important; padding: 0 20px !important;
+  box-shadow: var(--m3-elev-1) !important;
+}
+.bu-btn-tutup { border-radius: 20px !important; font-weight: 600 !important; color: var(--c-text-2) !important; }
+</style>

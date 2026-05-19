@@ -126,6 +126,15 @@ router.patch('/ujian/:id/status', (req, res) => {
   res.json({ success: true })
 })
 
+// DELETE /guru/ujian/:id — hapus ujian beserta seluruh peserta & jawaban (CASCADE)
+router.delete('/ujian/:id', (req, res) => {
+  const db = getDb()
+  const ujian = db.prepare(`SELECT id, judul FROM ujian WHERE id = ?`).get(req.params.id)
+  if (!ujian) return res.status(404).json({ error: 'Ujian tidak ditemukan' })
+  db.prepare(`DELETE FROM ujian WHERE id = ?`).run(req.params.id)
+  res.json({ success: true })
+})
+
 // GET /guru/monitor/:token — status peserta real-time
 router.get('/monitor/:token', (req, res) => {
   const db = getDb()

@@ -42,6 +42,7 @@ async function createWindow () {
     maximizable: true,
     useContentSize: true,
     title: 'Sios CBE',
+    backgroundColor: '#F5F8FF',  // cegah flash putih/warna default Electron
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -136,6 +137,24 @@ ipcMain.handle('exam:start', () => {
     'Super+Left', 'Super+Right', 'Super+Up', 'Super+Down',
     'Meta+D', 'Meta+L', 'Meta+Tab',
   ]
+
+  // Shortcut tambahan khusus macOS
+  if (platform === 'darwin') {
+    shortcuts.push(
+      'Command+Q',           // Quit
+      'Command+H',           // Hide
+      'Command+M',           // Minimize
+      'Command+W',           // Close window
+      'Command+Tab',         // App switcher
+      'Command+Shift+Tab',
+      'Command+Space',       // Spotlight
+      'Command+Option+Escape', // Force quit dialog
+      'Command+Control+Q',   // Lock screen
+      'Command+Control+F',   // Fullscreen toggle
+      'Command+Option+D',    // Show/hide Dock
+    )
+  }
+
   for (const s of shortcuts) {
     try { globalShortcut.register(s, () => {}) } catch (_) {}
   }
@@ -157,6 +176,10 @@ ipcMain.handle('exam:end', () => {
   mainWindow.setSkipTaskbar(false)
   mainWindow.setVisibleOnAllWorkspaces(false)
   globalShortcut.unregisterAll()
+})
+
+ipcMain.handle('app:closeWindow', () => {
+  if (mainWindow) mainWindow.close()
 })
 
 // IPC: Paksa fokus ke window (dipanggil saat renderer kehilangan fokus saat exam)

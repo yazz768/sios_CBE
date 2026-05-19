@@ -31,14 +31,15 @@ export default configure(function (/* ctx */) {
     framework: {
       config: {
         brand: {
-          primary: '#1a3a5c',
-          secondary: '#26A69A',
-          accent: '#9C27B0',
-          dark: '#1d1d1d',
-          positive: '#21BA45',
-          negative: '#C10015',
-          info: '#31CCEC',
-          warning: '#F2C037'
+          primary: '#1a5fa8',
+          secondary: '#0095C8',
+          accent: '#6750A4',
+          dark: '#1A1C20',
+          'dark-page': '#101418',
+          positive: '#1B6B3A',
+          negative: '#BA1A1A',
+          info: '#1a5fa8',
+          warning: '#875200'
         }
       },
       plugins: ['Dark', 'Notify', 'Dialog', 'Loading']
@@ -77,6 +78,20 @@ export default configure(function (/* ctx */) {
           allowToChangeInstallationDirectory: true,
           createDesktopShortcut: true,
           shortcutName: isSiswa ? 'Sios CBE Siswa' : 'Sios CBE Guru'
+        },
+
+        mac: {
+          target: [{ target: 'dmg', arch: ['arm64'] }],
+          artifactName: isSiswa ? 'SiosCBE-Siswa-Mac.${ext}' : 'SiosCBE-Guru-Mac.${ext}',
+          category: 'public.app-category.education',
+          icon: 'src-electron/icons/icon.png',
+          // Unsigned — tidak perlu Apple Developer certificate
+          identity: null,
+          hardenedRuntime: false
+        },
+        dmg: {
+          title: isSiswa ? 'Sios CBE Siswa' : 'Sios CBE Guru',
+          window: { width: 540, height: 380 }
         },
 
         // Native .node files harus di luar asar

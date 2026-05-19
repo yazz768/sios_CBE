@@ -23,15 +23,228 @@
   white-space: nowrap;
 }
 
-// Override warna Quasar drawer & toolbar mengikuti theme
-.q-drawer {
-  background: var(--c-nav-bg) !important;
-}
-.q-toolbar {
-  background: var(--c-surface) !important;
-  border-bottom: 0.5px solid var(--c-border) !important;
-  color: var(--c-text) !important;
-}
+// Page container transparan — background dihandle oleh body
 .q-page-container {
-  background: var(--c-bg) !important;
+  background: transparent !important;
+}
+
+.q-drawer-container {
+  background: transparent !important;
+}
+.q-layout__section--marginal {
+  background: transparent !important;
+}
+
+/* =============================================================
+   DARK MODE — Override Quasar components ke M3 style
+   ============================================================= */
+
+.body--dark {
+
+  /* ── Q-TABLE ──────────────────────────────────────────── */
+  .q-table__container {
+    background: transparent !important;
+  }
+  .q-table {
+    background: transparent !important;
+  }
+  .q-table thead tr,
+  .q-table thead th {
+    background: transparent !important;
+  }
+  .q-table tbody td {
+    background: transparent !important;
+    color: var(--c-text-2) !important;
+  }
+  .q-table tbody tr:hover td {
+    background: rgba(168,200,255,0.05) !important;
+  }
+  .q-table__bottom {
+    background: transparent !important;
+    color: var(--c-text-3) !important;
+  }
+
+  /* ── Q-CARD ───────────────────────────────────────────── */
+  .q-card {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border) !important;
+    box-shadow: var(--m3-elev-1) !important;
+    color: var(--c-text) !important;
+  }
+
+  /* ── Q-INPUT ──────────────────────────────────────────── */
+  .q-field--outlined .q-field__control {
+    background: var(--c-surface-2) !important;
+  }
+  .q-field--outlined .q-field__control:before {
+    border-color: var(--c-border) !important;
+  }
+  .q-field--outlined:hover .q-field__control:before {
+    border-color: var(--c-border-2) !important;
+  }
+  .q-field--outlined.q-field--focused .q-field__control:after {
+    border-color: var(--c-accent) !important;
+  }
+  .q-field__label {
+    color: var(--c-text-3) !important;
+  }
+  .q-field__native,
+  .q-field__input {
+    color: var(--c-text) !important;
+  }
+
+  /* ── Q-SELECT dropdown ────────────────────────────────── */
+  .q-menu {
+    background: var(--c-surface-2) !important;
+    border: 1px solid var(--c-border) !important;
+    box-shadow: var(--m3-elev-3) !important;
+  }
+  .q-item {
+    color: var(--c-text-2) !important;
+  }
+  .q-item:hover,
+  .q-item--active {
+    background: rgba(168,200,255,0.1) !important;
+    color: var(--c-accent) !important;
+  }
+
+  /* ── Q-SEPARATOR ──────────────────────────────────────── */
+  .q-separator {
+    background: var(--c-border) !important;
+  }
+
+  /* ── Q-BADGE ──────────────────────────────────────────── */
+  .q-badge {
+    font-weight: 600 !important;
+    font-size: 10.5px !important;
+  }
+
+  /* ── Q-DIALOG ─────────────────────────────────────────── */
+  .q-dialog__inner > div {
+    background: var(--c-surface-2) !important;
+    border: 1px solid var(--c-border) !important;
+    color: var(--c-text) !important;
+    box-shadow: var(--m3-elev-4) !important;
+  }
+  .q-dialog__title {
+    color: var(--c-text) !important;
+  }
+  .q-dialog__message {
+    color: var(--c-text-2) !important;
+  }
+
+  /* ── Q-LIST dalam dialog/card ─────────────────────────── */
+  .q-list {
+    background: transparent !important;
+  }
+  .q-item__label {
+    color: var(--c-text-2) !important;
+  }
+  .q-item__label--caption {
+    color: var(--c-text-3) !important;
+  }
+
+  /* ── Q-TOGGLE ─────────────────────────────────────────── */
+  .q-toggle__track {
+    opacity: 0.5 !important;
+  }
+
+  /* ── Q-BTN flat di dark mode ─────────────────────────── */
+  .q-btn.text-primary {
+    color: var(--c-accent) !important;
+  }
+  .q-btn.text-negative {
+    color: var(--c-danger) !important;
+  }
+  .q-btn.text-positive {
+    color: var(--c-success) !important;
+  }
+
+  /* ── Q-BANNER ─────────────────────────────────────────── */
+  .q-banner {
+    background: var(--c-surface-2) !important;
+    border: 1px solid var(--c-border) !important;
+    color: var(--c-text-2) !important;
+  }
+
+  /* ── Q-CHIP ───────────────────────────────────────────── */
+  .q-chip {
+    background: var(--c-surface-3) !important;
+    color: var(--c-text-2) !important;
+  }
+
+  /* ── Q-LINEAR-PROGRESS ────────────────────────────────── */
+  .q-linear-progress__track {
+    background: var(--c-border) !important;
+  }
+
+  /* ── Q-INNER-LOADING ──────────────────────────────────── */
+  .q-inner-loading {
+    background: rgba(16,20,24,0.7) !important;
+  }
+}
+
+
+/* === LIGHT MODE — Q-CARD override ke M3 ===  */
+.body--light {
+  .q-card {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border) !important;
+    box-shadow: var(--m3-elev-1) !important;
+  }
+
+  .q-field--outlined .q-field__control {
+    background: var(--c-surface) !important;
+  }
+  .q-field--outlined .q-field__control:before {
+    border-color: var(--c-border) !important;
+  }
+  .q-field--outlined:hover .q-field__control:before {
+    border-color: var(--c-border-2) !important;
+  }
+  .q-field--outlined.q-field--focused .q-field__control:after {
+    border-color: var(--c-accent) !important;
+  }
+  .q-field__label {
+    color: var(--c-text-3) !important;
+  }
+
+  .q-menu {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border) !important;
+    box-shadow: var(--m3-elev-3) !important;
+  }
+  .q-item:hover,
+  .q-item--active {
+    background: var(--c-accent-soft) !important;
+    color: var(--c-accent) !important;
+  }
+
+  .q-separator {
+    background: var(--c-border) !important;
+  }
+
+  .q-dialog__inner > div {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border) !important;
+    box-shadow: var(--m3-elev-4) !important;
+  }
+
+  .q-banner {
+    background: var(--c-surface-2) !important;
+    border: 1px solid var(--c-border) !important;
+  }
+
+  .q-chip {
+    background: var(--c-surface-2) !important;
+    color: var(--c-text-2) !important;
+  }
+}
+
+
+:root {
+  --gradient-primary: linear-gradient(135deg, #1a5fa8, #0095C8);
+  --gradient-success: linear-gradient(135deg, #1B6B3A, #2E9E5A);
+  --gradient-danger:  linear-gradient(135deg, #BA1A1A, #E53935);
+  --gradient-warning: linear-gradient(135deg, #875200, #C97A00);
 }

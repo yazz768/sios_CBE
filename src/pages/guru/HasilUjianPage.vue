@@ -1,192 +1,190 @@
 <template>
-  <q-page padding>
-    <!-- Header -->
-    <div class="row items-center q-mb-md">
-      <q-btn flat round icon="arrow_back" to="/hasil" class="q-mr-sm" />
+  <q-page padding class="hu-page">
+
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
+    <div class="row items-center q-mb-lg">
+      <q-btn flat round icon="arrow_back" to="/hasil" class="hu-back-btn q-mr-sm" />
       <div class="col">
-        <div class="text-h5" style="color: var(--c-text)">Hasil Ujian</div>
-        <div class="text-caption" style="color: var(--c-text-2)">
-          {{ ujianInfo?.judul }} — {{ ujianInfo?.mata_pelajaran }}
-        </div>
+        <div class="hu-title">Hasil Ujian</div>
+        <div class="hu-subtitle">{{ ujianInfo?.judul }} — {{ ujianInfo?.mata_pelajaran }}</div>
       </div>
-      <q-chip icon="vpn_key" color="primary" text-color="white" dense class="q-mr-sm">
-        {{ route.params.token }}
-      </q-chip>
-      <q-btn
-        unelevated
-        icon="picture_as_pdf"
-        label="Export PDF"
-        color="red-7"
-        size="sm"
-        :disable="!pesertaList.length"
-        :loading="exportingPDF"
-        class="q-mr-sm"
-        @click="exportPDF"
-      />
-      <q-btn
-        unelevated
-        icon="download"
-        label="Export CSV"
-        color="secondary"
-        size="sm"
-        :disable="!pesertaList.length"
-        @click="exportCSV"
-      />
+      <div class="row items-center q-gutter-sm">
+        <div class="hu-token-chip">
+          <q-icon name="vpn_key" size="13px" class="q-mr-xs" />
+          {{ route.params.token }}
+        </div>
+        <q-btn
+          unelevated icon="picture_as_pdf" label="Export PDF" size="sm"
+          class="hu-btn-red"
+          :disable="!pesertaList.length" :loading="exportingPDF"
+          @click="exportPDF"
+        />
+        <q-btn
+          unelevated icon="download" label="Export CSV" size="sm"
+          class="hu-btn-green"
+          :disable="!pesertaList.length"
+          @click="exportCSV"
+        />
+      </div>
     </div>
 
-    <!-- Layout Split: kiri (rekap) + kanan (detail) -->
+    <!-- ── LAYOUT SPLIT ────────────────────────────────────────── -->
     <div class="row q-col-gutter-md">
 
-      <!-- ── KOLOM KIRI: Stat Cards + Tabel ── -->
+      <!-- ── KOLOM KIRI ─────────────────────────────────────────── -->
       <div class="col-12 layout-left" :class="selectedPeserta ? 'col-md-5' : ''">
 
-        <!-- Ringkasan -->
-        <div class="row q-gutter-sm q-mb-md">
-          <q-card flat bordered class="col">
-            <q-card-section class="text-center q-pa-sm">
-              <div class="text-h5 text-weight-bold" style="color: var(--c-accent)">{{ pesertaList.length }}</div>
-              <div class="text-caption" style="color: var(--c-text-2)">Total Peserta</div>
-            </q-card-section>
-          </q-card>
-          <q-card flat bordered class="col">
-            <q-card-section class="text-center q-pa-sm">
-              <div class="text-h5 text-weight-bold text-positive">{{ submittedCount }}</div>
-              <div class="text-caption" style="color: var(--c-text-2)">Sudah Submit</div>
-            </q-card-section>
-          </q-card>
-          <q-card flat bordered class="col">
-            <q-card-section class="text-center q-pa-sm">
-              <div class="text-h5 text-weight-bold text-warning">{{ pendingEssayCount }}</div>
-              <div class="text-caption" style="color: var(--c-text-2)">Essay Pending</div>
-            </q-card-section>
-          </q-card>
-          <q-card flat bordered class="col">
-            <q-card-section class="text-center q-pa-sm">
-              <div class="text-h5 text-weight-bold" style="color: var(--c-accent)">{{ avgNilaiPg }}%</div>
-              <div class="text-caption" style="color: var(--c-text-2)">Rata-rata PG</div>
-            </q-card-section>
-          </q-card>
+        <!-- STAT CARDS -->
+        <div class="row q-col-gutter-sm q-mb-md">
+          <div class="col-6 col-sm-3">
+            <div class="hu-stat-card">
+              <div class="hu-stat-icon hu-icon-blue"><q-icon name="people" size="16px" /></div>
+              <div class="hu-stat-num hu-num-blue">{{ pesertaList.length }}</div>
+              <div class="hu-stat-label">Total Peserta</div>
+            </div>
+          </div>
+          <div class="col-6 col-sm-3">
+            <div class="hu-stat-card">
+              <div class="hu-stat-icon hu-icon-green"><q-icon name="check_circle" size="16px" /></div>
+              <div class="hu-stat-num hu-num-green">{{ submittedCount }}</div>
+              <div class="hu-stat-label">Sudah Submit</div>
+            </div>
+          </div>
+          <div class="col-6 col-sm-3">
+            <div class="hu-stat-card" :class="pendingEssayCount > 0 ? 'hu-stat-warning' : ''">
+              <div class="hu-stat-icon hu-icon-orange"><q-icon name="pending_actions" size="16px" /></div>
+              <div class="hu-stat-num hu-num-orange">{{ pendingEssayCount }}</div>
+              <div class="hu-stat-label">Essay Pending</div>
+            </div>
+          </div>
+          <div class="col-6 col-sm-3">
+            <div class="hu-stat-card">
+              <div class="hu-stat-icon hu-icon-blue"><q-icon name="bar_chart" size="16px" /></div>
+              <div class="hu-stat-num" :class="avgNilaiColor">{{ avgNilaiPg }}%</div>
+              <div class="hu-stat-label">Rata-rata PG</div>
+            </div>
+          </div>
         </div>
 
-        <!-- Tabel Rekap Peserta -->
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-h6 q-mb-md" style="color: var(--c-text)">Rekap Nilai Siswa</div>
-            <q-table
-              :rows="pesertaList"
-              :columns="selectedPeserta ? rekapColumnsCompact : rekapColumns"
-              row-key="id"
-              flat
-              :loading="loading"
-              no-data-label="Belum ada peserta bergabung"
-              :pagination="{ rowsPerPage: 20 }"
-            >
-              <template #body-cell-status="props">
-                <q-td :props="props">
+        <!-- TABEL REKAP -->
+        <div class="hu-table-card">
+          <div class="hu-section-title q-mb-md">Rekap Nilai Siswa</div>
+          <q-table
+            :rows="pesertaList"
+            :columns="selectedPeserta ? rekapColumnsCompact : rekapColumns"
+            row-key="id"
+            flat
+            :loading="loading"
+            no-data-label="Belum ada peserta bergabung"
+            :pagination="{ rowsPerPage: 20 }"
+            class="hu-table"
+          >
+            <template #body-cell-status="props">
+              <q-td :props="props">
+                <div class="hu-status-pill" :class="props.row.submitted_at ? 'hu-pill-selesai' : 'hu-pill-belum'">
+                  {{ props.row.submitted_at ? 'Selesai' : 'Belum' }}
+                </div>
+              </q-td>
+            </template>
+
+            <template #body-cell-nilai_pg="props">
+              <q-td :props="props" class="hu-mono-cell">
+                <span v-if="props.row.total_pg > 0">
+                  {{ props.row.nilai_pg_raw }}/{{ props.row.total_pg }}
+                  <span class="hu-persen q-ml-xs">({{ pgPersen(props.row) }}%)</span>
+                </span>
+                <span v-else class="hu-dash">—</span>
+              </q-td>
+            </template>
+
+            <template #body-cell-nilai_essay="props">
+              <q-td :props="props" class="hu-mono-cell">
+                <span v-if="props.row.total_essay > 0">
+                  {{ props.row.nilai_essay_raw }}
                   <q-badge
-                    :color="props.row.submitted_at ? 'positive' : 'grey'"
-                    :label="props.row.submitted_at ? 'Selesai' : 'Belum'"
+                    v-if="props.row.pending_essay > 0"
+                    color="warning"
+                    :label="`${props.row.pending_essay} belum`"
+                    class="q-ml-xs"
                   />
-                </q-td>
-              </template>
+                </span>
+                <span v-else class="hu-dash">—</span>
+              </q-td>
+            </template>
 
-              <template #body-cell-nilai_pg="props">
-                <q-td :props="props">
-                  <span v-if="props.row.total_pg > 0">
-                    {{ props.row.nilai_pg_raw }}/{{ props.row.total_pg }}
-                    <span class="q-ml-xs text-caption" style="color: var(--c-text-3)">
-                      ({{ pgPersen(props.row) }}%)
-                    </span>
-                  </span>
-                  <span v-else style="color: var(--c-text-3)">—</span>
-                </q-td>
-              </template>
+            <template #body-cell-total="props">
+              <q-td :props="props">
+                <span class="hu-total-val" :class="totalValueClass(totalNilai(props.row))">
+                  {{ totalNilai(props.row) }}%
+                </span>
+              </q-td>
+            </template>
 
-              <template #body-cell-nilai_essay="props">
-                <q-td :props="props">
-                  <span v-if="props.row.total_essay > 0">
-                    {{ props.row.nilai_essay_raw }}
-                    <q-badge
-                      v-if="props.row.pending_essay > 0"
-                      color="warning"
-                      :label="`${props.row.pending_essay} belum`"
-                      class="q-ml-xs"
-                    />
-                  </span>
-                  <span v-else style="color: var(--c-text-3)">—</span>
-                </q-td>
-              </template>
-
-              <template #body-cell-total="props">
-                <q-td :props="props">
-                  <strong>{{ totalNilai(props.row) }}%</strong>
-                </q-td>
-              </template>
-
-              <template #body-cell-aksi="props">
-                <q-td :props="props">
-                  <q-btn
-                    flat dense
-                    icon="visibility"
-                    label="Detail"
-                    size="sm"
-                    :class="['detail-btn', selectedPeserta?.id === props.row.id ? 'detail-btn-active' : '']"
-                    @click="loadDetail(props.row)"
-                  />
-                </q-td>
-              </template>
-            </q-table>
-          </q-card-section>
-        </q-card>
+            <template #body-cell-aksi="props">
+              <q-td :props="props">
+                <q-btn
+                  flat dense icon="visibility" label="Detail" size="sm"
+                  class="hu-detail-btn"
+                  :class="selectedPeserta?.id === props.row.id ? 'hu-detail-active' : ''"
+                  @click="loadDetail(props.row)"
+                />
+              </q-td>
+            </template>
+          </q-table>
+        </div>
       </div>
 
-      <!-- ── KOLOM KANAN: Panel Detail ── -->
+      <!-- ── KOLOM KANAN: PANEL DETAIL ──────────────────────────── -->
       <transition name="slide-detail">
         <div v-if="selectedPeserta" class="col-12 col-md-7">
-          <q-card flat bordered class="detail-panel">
+          <div class="hu-detail-panel">
+            <transition name="hu-switch" mode="out-in">
+            <div :key="selectedPeserta?.id" class="hu-switch-wrap">
+
             <!-- Header Panel -->
-            <q-card-section class="detail-panel-header row items-center no-wrap">
-              <q-icon name="person" color="primary" size="24px" class="q-mr-sm" />
-              <div class="col">
-                <div class="text-h6" style="color: var(--c-text)">{{ selectedPeserta.nama }}</div>
-                <div class="text-caption" style="color: var(--c-text-2)">
+            <div class="hu-panel-header row items-center no-wrap">
+              <div class="hu-panel-avatar">
+                <q-icon name="person" size="20px" />
+              </div>
+              <div class="col q-ml-sm">
+                <div class="hu-panel-name">{{ selectedPeserta.nama }}</div>
+                <div class="hu-panel-sub">
                   Submit: {{ selectedPeserta.submitted_at ? formatTime(selectedPeserta.submitted_at) : 'Belum submit' }}
                 </div>
               </div>
-              <!-- Ringkasan nilai kecil di header -->
-              <div class="row q-gutter-md q-mr-md text-center">
+              <div class="row q-gutter-md text-center q-mr-md">
                 <div>
-                  <div class="text-caption" style="color: var(--c-text-3)">PG</div>
-                  <div class="text-weight-bold text-primary">{{ pgPersen(selectedPeserta) }}%</div>
+                  <div class="hu-score-label">PG</div>
+                  <div class="hu-score-val hu-score-blue">{{ pgPersen(selectedPeserta) }}%</div>
                 </div>
                 <div v-if="selectedPeserta.total_essay > 0">
-                  <div class="text-caption" style="color: var(--c-text-3)">Essay</div>
-                  <div class="text-weight-bold text-secondary">{{ selectedPeserta.nilai_essay_raw }}</div>
+                  <div class="hu-score-label">Essay</div>
+                  <div class="hu-score-val hu-score-purple">{{ selectedPeserta.nilai_essay_raw }}</div>
                 </div>
                 <div>
-                  <div class="text-caption" style="color: var(--c-text-3)">Total</div>
-                  <div class="text-weight-bold text-positive">{{ totalNilai(selectedPeserta) }}%</div>
+                  <div class="hu-score-label">Total</div>
+                  <div class="hu-score-val hu-score-green">{{ totalNilai(selectedPeserta) }}%</div>
                 </div>
               </div>
-              <q-btn flat round dense icon="close" @click="selectedPeserta = null; detailJawaban = []" />
-            </q-card-section>
+              <q-btn flat round dense icon="close" class="hu-close-btn"
+                @click="selectedPeserta = null; detailJawaban = []" />
+            </div>
 
-            <q-separator />
+            <div class="hu-panel-divider" />
 
-            <!-- Isi Detail — scrollable sendiri -->
-            <q-card-section class="detail-panel-body">
+            <!-- Isi Detail -->
+            <div class="hu-panel-body">
               <q-inner-loading :showing="loadingDetail" />
 
-              <div v-for="(item, idx) in detailJawaban" :key="item.soal_id" class="soal-detail q-mb-md">
+              <div v-for="(item, idx) in detailJawaban" :key="item.soal_id" class="hu-soal-item q-mb-lg">
                 <!-- Nomor & Tipe -->
                 <div class="row items-center q-mb-sm">
-                  <div class="text-subtitle2 col" style="color: var(--c-text)">
-                    Soal {{ idx + 1 }}
-                    <q-badge
-                      :color="item.tipe === 'PG' ? 'blue' : 'orange'"
-                      :label="item.tipe"
-                      class="q-ml-sm"
-                    />
+                  <div class="col">
+                    <span class="hu-soal-num">Soal {{ idx + 1 }}</span>
+                    <span class="hu-tipe-badge q-ml-sm"
+                      :class="item.tipe === 'PG' ? 'hu-badge-pg' : 'hu-badge-essay'">
+                      {{ item.tipe }}
+                    </span>
                   </div>
                   <template v-if="item.tipe === 'PG'">
                     <span v-if="item.jawaban_teks === item.kunci_jawaban" class="benar-badge">✅ Benar</span>
@@ -196,60 +194,43 @@
                 </div>
 
                 <!-- Pertanyaan -->
-                <div
-                  class="pertanyaan-box q-pa-sm q-mb-sm"
-                  style="line-height: 1.6; border-radius: 8px; border: 0.5px solid var(--c-border); background: var(--c-surface-2)"
-                >
+                <div class="hu-pertanyaan-box q-mb-sm">
                   <MathText :text="item.pertanyaan" />
                 </div>
 
-                <!-- PG: jawaban siswa + kunci -->
+                <!-- PG -->
                 <template v-if="item.tipe === 'PG'">
                   <div class="row q-gutter-sm">
-                    <div
-                      class="col jawaban-box"
-                      :class="item.jawaban_teks === item.kunci_jawaban ? 'jawaban-benar' : (item.jawaban_teks ? 'jawaban-salah' : 'jawaban-kosong')"
-                    >
-                      <div class="text-caption q-mb-xs" style="color: var(--c-text-3)">Jawaban Siswa</div>
-                      <div class="text-weight-medium">{{ item.jawaban_teks || '(tidak dijawab)' }}</div>
+                    <div class="col hu-jawaban-box"
+                      :class="item.jawaban_teks === item.kunci_jawaban ? 'hu-jawaban-benar' : (item.jawaban_teks ? 'hu-jawaban-salah' : 'hu-jawaban-kosong')">
+                      <div class="hu-jawaban-label q-mb-xs">Jawaban Siswa</div>
+                      <div class="hu-jawaban-val">{{ item.jawaban_teks || '(tidak dijawab)' }}</div>
                     </div>
-                    <div class="col jawaban-box jawaban-kunci">
-                      <div class="text-caption q-mb-xs" style="color: var(--c-text-3)">Kunci Jawaban</div>
-                      <div class="text-weight-medium">{{ item.kunci_jawaban }}</div>
+                    <div class="col hu-jawaban-box hu-jawaban-kunci">
+                      <div class="hu-jawaban-label q-mb-xs">Kunci Jawaban</div>
+                      <div class="hu-jawaban-val">{{ item.kunci_jawaban }}</div>
                     </div>
                   </div>
                 </template>
 
-                <!-- Essay: jawaban + panduan + input nilai -->
+                <!-- Essay -->
                 <template v-else>
-                  <div class="jawaban-box q-pa-sm q-mb-sm" style="background: var(--c-surface-2)">
-                    <div class="text-caption q-mb-xs" style="color: var(--c-text-3)">Jawaban Siswa</div>
-                    <div style="white-space: pre-wrap; color: var(--c-text)">
-                      {{ item.jawaban_teks || '(tidak dijawab)' }}
-                    </div>
+                  <div class="hu-jawaban-box q-mb-sm">
+                    <div class="hu-jawaban-label q-mb-xs">Jawaban Siswa</div>
+                    <div class="hu-jawaban-essay">{{ item.jawaban_teks || '(tidak dijawab)' }}</div>
                   </div>
-
-                  <div v-if="item.panduan_penilaian" class="jawaban-box q-pa-sm q-mb-sm" style="background: var(--c-warning-bg)">
-                    <div class="text-caption q-mb-xs" style="color: var(--c-text-3)">Panduan Penilaian</div>
-                    <div style="white-space: pre-wrap; color: var(--c-text)">{{ item.panduan_penilaian }}</div>
+                  <div v-if="item.panduan_penilaian" class="hu-panduan-box q-mb-sm">
+                    <div class="hu-jawaban-label q-mb-xs">Panduan Penilaian</div>
+                    <div class="hu-jawaban-essay">{{ item.panduan_penilaian }}</div>
                   </div>
-
                   <div class="row items-center q-gutter-sm">
                     <q-input
                       v-model.number="essayNilai[item.jawaban_id]"
-                      type="number"
-                      min="0"
-                      max="100"
-                      label="Nilai (0–100)"
-                      outlined
-                      dense
-                      style="max-width: 150px"
+                      type="number" min="0" max="100" label="Nilai (0–100)"
+                      outlined dense class="hu-essay-input"
                     />
                     <q-btn
-                      unelevated
-                      color="primary"
-                      label="Simpan Nilai"
-                      size="sm"
+                      unelevated label="Simpan Nilai" size="sm" class="hu-simpan-btn"
                       :loading="savingNilai[item.jawaban_id]"
                       :disable="essayNilai[item.jawaban_id] === undefined || essayNilai[item.jawaban_id] === null"
                       @click="simpanNilai(item)"
@@ -258,10 +239,12 @@
                   </div>
                 </template>
 
-                <q-separator class="q-mt-md" />
+                <div class="hu-soal-divider q-mt-md" />
               </div>
-            </q-card-section>
-          </q-card>
+            </div>
+            </div><!-- end hu-switch-wrap -->
+            </transition><!-- end hu-switch -->
+          </div>
         </div>
       </transition>
 
@@ -289,11 +272,8 @@ const selectedPeserta = ref(null)
 const detailJawaban = ref([])
 const loadingDetail = ref(false)
 
-// { [jawaban_id]: nilai } — nilai essay yang sedang diinput
 const essayNilai = ref({})
 const savingNilai = ref({})
-
-// ─── Computed ────────────────────────────────────────────────
 
 const submittedCount = computed(() => pesertaList.value.filter(p => p.submitted_at).length)
 const pendingEssayCount = computed(() => pesertaList.value.reduce((acc, p) => acc + (p.pending_essay || 0), 0))
@@ -302,6 +282,12 @@ const avgNilaiPg = computed(() => {
   if (!submitted.length) return 0
   const avg = submitted.reduce((acc, p) => acc + pgPersen(p), 0) / submitted.length
   return Math.round(avg)
+})
+
+const avgNilaiColor = computed(() => {
+  if (avgNilaiPg.value >= 75) return 'hu-num-green'
+  if (avgNilaiPg.value >= 60) return 'hu-num-orange'
+  return 'hu-num-red'
 })
 
 const rekapColumns = [
@@ -315,15 +301,12 @@ const rekapColumns = [
   { name: 'aksi', label: 'Aksi', field: 'aksi', align: 'center' }
 ]
 
-// Kolom kompak saat panel detail terbuka (sembunyikan beberapa kolom)
 const rekapColumnsCompact = [
   { name: 'nama', label: 'Nama Siswa', field: 'nama', align: 'left', sortable: true },
+  { name: 'nilai_essay', label: 'Essay', field: 'nilai_essay', align: 'center' },
   { name: 'total', label: 'Total', field: 'total', align: 'center' },
-  { name: 'status', label: 'Status', field: 'status', align: 'center' },
   { name: 'aksi', label: 'Aksi', field: 'aksi', align: 'center' }
 ]
-
-// ─── Helpers ─────────────────────────────────────────────────
 
 function pgPersen (p) {
   if (!p || !p.total_pg) return 0
@@ -334,12 +317,16 @@ function totalNilai (p) {
   if (!p) return 0
   const pgScore = pgPersen(p)
   if (!p.total_essay) return pgScore
-
-  // Total essay max = total_essay * 100
   const essayPersen = Math.round((p.nilai_essay_raw / (p.total_essay * 100)) * 100)
   const total_soal = (p.total_pg || 0) + (p.total_essay || 0)
   const weighted = ((pgScore * (p.total_pg || 0)) + (essayPersen * (p.total_essay || 0))) / total_soal
   return Math.round(weighted)
+}
+
+function totalValueClass (val) {
+  if (val >= 75) return 'hu-val-green'
+  if (val >= 60) return 'hu-val-orange'
+  return 'hu-val-red'
 }
 
 function formatTime (isoStr) {
@@ -349,8 +336,6 @@ function formatTime (isoStr) {
     hour: '2-digit', minute: '2-digit'
   })
 }
-
-// ─── Actions ─────────────────────────────────────────────────
 
 async function fetchRekap () {
   loading.value = true
@@ -378,7 +363,6 @@ async function loadDetail (peserta) {
   try {
     const detail = await guruStore.fetchDetailPeserta(route.params.token, peserta.id)
     detailJawaban.value = detail
-    // Prefill nilai essay yang sudah ada
     for (const item of detail) {
       if (item.tipe === 'Essay' && item.jawaban_id && item.dinilai) {
         essayNilai.value[item.jawaban_id] = item.nilai
@@ -397,12 +381,9 @@ async function simpanNilai (item) {
   savingNilai.value[item.jawaban_id] = true
   try {
     await guruStore.simpanNilaiEssay(item.jawaban_id, nilai)
-    // Update item lokal
     item.nilai = nilai
     item.dinilai = 1
-    // Refresh rekap
     await fetchRekap()
-    // Update selectedPeserta agar total nilai terupdate
     if (selectedPeserta.value) {
       selectedPeserta.value = pesertaList.value.find(p => p.id === selectedPeserta.value.id) || selectedPeserta.value
     }
@@ -480,18 +461,13 @@ async function exportPDF () {
 function exportCSV () {
   const header = ['Nama Siswa', 'Nilai PG (%)', 'Nilai Essay (raw)', 'Nilai Total (%)', 'Status', 'Waktu Submit']
   const rows = pesertaList.value.map(p => [
-    p.nama,
-    pgPersen(p),
-    p.nilai_essay_raw,
-    totalNilai(p),
+    p.nama, pgPersen(p), p.nilai_essay_raw, totalNilai(p),
     p.submitted_at ? 'Selesai' : 'Belum',
     p.submitted_at ? formatTime(p.submitted_at) : '-'
   ])
-
   const csvContent = [header, ...rows]
     .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
     .join('\n')
-
   const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -505,105 +481,192 @@ onMounted(() => fetchRekap())
 </script>
 
 <style scoped>
-/* ── Split Layout ────────────────────────────────────────── */
-.layout-left {
-  transition: all 0.3s ease;
+/* ── HEADER ───────────────────────────────────────────────── */
+.hu-title {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.3px;
+  background: linear-gradient(90deg, #1a5fa8, #0095C8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hu-subtitle { font-size: 13px; margin-top: 2px; color: var(--c-text-2); }
+
+.hu-back-btn {
+  color: var(--c-text-2) !important;
+  background: var(--c-surface-2) !important;
+  border: 1px solid var(--c-border) !important;
+}
+.hu-back-btn:hover { background: var(--c-accent-soft) !important; color: var(--c-accent) !important; }
+
+.hu-token-chip {
+  display: flex; align-items: center;
+  padding: 6px 14px; border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  background: var(--c-accent-soft); border: 1px solid var(--c-border); color: var(--c-accent);
 }
 
-.detail-panel {
-  position: sticky;
-  top: 16px;
+/* M3 Filled Buttons */
+.hu-btn-red {
+  background: var(--c-danger) !important;
+  color: white !important; border-radius: 20px !important; font-weight: 600 !important;
+}
+.hu-btn-red:hover { filter: brightness(0.9) !important; }
+
+.hu-btn-green {
+  background: var(--c-success) !important;
+  color: white !important; border-radius: 20px !important; font-weight: 600 !important;
+}
+.hu-btn-green:hover { filter: brightness(0.9) !important; }
+
+/* ── STAT CARDS — M3 Surface ──────────────────────────────── */
+.hu-stat-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 14px 10px; border-radius: var(--radius-lg); text-align: center;
+  transition: transform 0.15s;
+  background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: var(--m3-elev-1);
+}
+.hu-stat-card:hover { transform: translateY(-2px); box-shadow: var(--m3-elev-2) !important; }
+.hu-stat-warning { border-color: var(--c-warning) !important; background: var(--c-warning-bg) !important; }
+
+.hu-stat-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+}
+.hu-icon-blue   { background: var(--c-accent-soft); color: var(--c-accent); }
+.hu-icon-green  { background: var(--c-success-bg);  color: var(--c-success); }
+.hu-icon-orange { background: var(--c-warning-bg);  color: var(--c-warning); }
+
+.hu-stat-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+.hu-num-blue   { color: var(--c-accent); }
+.hu-num-green  { color: var(--c-success); }
+.hu-num-orange { color: var(--c-warning); }
+.hu-num-red    { color: var(--c-danger); }
+.hu-stat-label { font-size: 11px; line-height: 1.3; color: var(--c-text-2); }
+
+/* ── TABLE CARD — M3 Surface ──────────────────────────────── */
+.hu-table-card {
+  padding: 20px; border-radius: var(--radius-lg);
+  background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: var(--m3-elev-1);
+}
+.hu-section-title { font-size: 15px; font-weight: 700; color: var(--c-text); }
+
+:deep(.hu-table .q-table__top),
+:deep(.hu-table .q-table__bottom) { background: transparent !important; }
+:deep(.hu-table thead tr th) {
+  font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0.5px !important;
+  text-transform: uppercase !important; background: transparent !important;
+  color: var(--c-text-3) !important; border-bottom: 1px solid var(--c-border) !important;
+}
+:deep(.hu-table tbody tr td) {
+  color: var(--c-text-2); border-bottom: 1px solid var(--c-border) !important;
+}
+:deep(.hu-table tbody tr:hover td) { background: var(--c-surface-2) !important; }
+
+.hu-mono-cell { font-family: 'JetBrains Mono', monospace !important; font-size: 12px !important; }
+.hu-persen    { font-size: 11px; color: var(--c-text-3); }
+.hu-dash      { font-style: italic; color: var(--c-text-3); }
+
+.hu-total-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; }
+.hu-val-green  { color: var(--c-success); }
+.hu-val-orange { color: var(--c-warning); }
+.hu-val-red    { color: var(--c-danger); }
+
+/* ── STATUS PILLS ─────────────────────────────────────────── */
+.hu-status-pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
+}
+.hu-pill-selesai { background: var(--c-success-bg); color: var(--c-success); border: 1px solid var(--c-success); }
+.hu-pill-belum   { background: var(--c-surface-2);  color: var(--c-text-3); border: 1px solid var(--c-border); }
+
+/* ── DETAIL BUTTON ────────────────────────────────────────── */
+.hu-detail-btn {
+  border-radius: var(--radius-sm) !important; font-weight: 600 !important; font-size: 12px !important;
+  color: var(--c-accent) !important; border: 1px solid var(--c-border) !important;
+}
+.hu-detail-btn:hover { background: var(--c-accent-soft) !important; border-color: var(--c-accent) !important; }
+.hu-detail-active { background: var(--c-accent-soft) !important; border-color: var(--c-accent) !important; }
+
+/* ── LAYOUT ───────────────────────────────────────────────── */
+.layout-left { transition: all 0.3s ease; }
+.slide-detail-enter-active, .slide-detail-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.slide-detail-enter-from, .slide-detail-leave-to { opacity: 0; transform: translateX(24px); }
+
+/* Animasi switch antar murid — fade + geser ke atas */
+.hu-switch-wrap { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.hu-switch-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.hu-switch-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.hu-switch-enter-from   { opacity: 0; transform: translateY(10px); }
+.hu-switch-leave-to     { opacity: 0; transform: translateY(-6px); }
+
+/* ── DETAIL PANEL — M3 Surface ────────────────────────────── */
+.hu-detail-panel {
+  position: sticky; top: 16px;
   max-height: calc(100vh - 80px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: flex; flex-direction: column; overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: var(--m3-elev-2);
 }
 
-.detail-panel-header {
-  flex-shrink: 0;
-  padding: 12px 16px;
+.hu-panel-header { flex-shrink: 0; padding: 14px 16px; }
+.hu-panel-avatar {
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: var(--c-accent-soft); color: var(--c-accent);
+}
+.hu-panel-name { font-size: 15px; font-weight: 700; color: var(--c-text); }
+.hu-panel-sub  { font-size: 12px; margin-top: 1px; color: var(--c-text-2); }
+
+.hu-score-label { font-size: 10px; font-weight: 500; color: var(--c-text-3); }
+.hu-score-val   { font-size: 15px; font-weight: 800; }
+.hu-score-blue  { color: var(--c-accent); }
+.hu-score-purple { color: #7C3AED; }
+.hu-score-green { color: var(--c-success); }
+
+.hu-close-btn { color: var(--c-text-2) !important; }
+
+.hu-panel-divider { height: 1px; flex-shrink: 0; background: var(--c-border); }
+.hu-panel-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+/* ── SOAL ITEM ────────────────────────────────────────────── */
+.hu-soal-num { font-weight: 700; font-size: 14px; color: var(--c-text); }
+.hu-tipe-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700;
+}
+.hu-badge-pg    { background: var(--c-accent-soft); color: var(--c-accent); }
+.hu-badge-essay { background: var(--c-warning-bg);  color: var(--c-warning); }
+
+.hu-pertanyaan-box {
+  padding: 10px 14px; border-radius: var(--radius-md); line-height: 1.6; font-size: 14px;
+  background: var(--c-surface-2); border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent); color: var(--c-text);
 }
 
-.detail-panel-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
+.hu-jawaban-box {
+  padding: 10px 14px; border-radius: var(--radius-md);
+  background: var(--c-surface-2); border: 1px solid var(--c-border);
+}
+.hu-jawaban-benar { border-color: var(--c-success) !important; background: var(--c-success-bg) !important; }
+.hu-jawaban-salah { border-color: var(--c-danger) !important;  background: var(--c-danger-bg) !important; }
+.hu-jawaban-kunci { border-color: var(--c-accent) !important; }
+
+.hu-jawaban-label  { font-size: 11px; font-weight: 600; color: var(--c-text-3); }
+.hu-jawaban-val    { font-weight: 600; font-size: 14px; color: var(--c-text); }
+.hu-jawaban-essay  { white-space: pre-wrap; font-size: 13px; line-height: 1.6; color: var(--c-text-2); }
+
+.hu-panduan-box {
+  padding: 10px 14px; border-radius: var(--radius-md);
+  background: var(--c-warning-bg); border: 1px solid var(--c-warning);
+  border-left-width: 3px;
 }
 
-/* Transisi slide dari kanan */
-.slide-detail-enter-active,
-.slide-detail-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.slide-detail-enter-from,
-.slide-detail-leave-to {
-  opacity: 0;
-  transform: translateX(24px);
+.hu-soal-divider { height: 1px; background: var(--c-border); }
+.hu-essay-input { max-width: 150px; }
+.hu-simpan-btn {
+  background: var(--c-accent) !important; color: white !important;
+  border-radius: 20px !important; font-weight: 600 !important;
 }
 
-/* Highlight baris yang sedang dilihat */
-.detail-btn-active {
-  background: rgba(var(--c-accent-rgb, 26, 58, 92), 0.12) !important;
-}
-
-/* ── Jawaban Box ─────────────────────────────────────────── */
-.jawaban-box {
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 0.5px solid var(--c-border);
-}
-.jawaban-benar {
-  background: var(--c-success-bg);
-  border-color: var(--c-success);
-}
-.jawaban-salah {
-  background: var(--c-danger-bg);
-  border-color: var(--c-danger);
-}
-.jawaban-kosong {
-  background: var(--c-surface-2);
-}
-.jawaban-kunci {
-  background: var(--c-surface-2);
-}
-
-.benar-badge {
-  color: var(--c-success);
-  font-weight: 600;
-  font-size: 13px;
-}
-.salah-badge {
-  color: var(--c-danger);
-  font-weight: 600;
-  font-size: 13px;
-}
-.kosong-badge {
-  color: var(--c-text-3);
-  font-size: 13px;
-}
-
-.detail-btn {
-  color: var(--c-accent) !important;
-  border: 1px solid var(--c-accent) !important;
-  border-radius: 8px !important;
-  padding: 4px 12px !important;
-  font-weight: 600 !important;
-  font-size: 12px !important;
-  transition: all 0.2s !important;
-}
-
-:global(.body--dark) .detail-btn {
-  color: #34d399 !important;
-  border-color: #34d399 !important;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.4),
-              0 0 16px rgba(52, 211, 153, 0.15) !important;
-  text-shadow: 0 0 8px rgba(52, 211, 153, 0.8) !important;
-}
-
-:global(.body--dark) .detail-btn:hover {
-  background: rgba(52, 211, 153, 0.1) !important;
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.6),
-              0 0 24px rgba(52, 211, 153, 0.25) !important;
-  text-shadow: 0 0 10px rgba(52, 211, 153, 1) !important;
-}
+.benar-badge  { color: var(--c-success); font-weight: 600; font-size: 13px; }
+.salah-badge  { color: var(--c-danger);  font-weight: 600; font-size: 13px; }
+.kosong-badge { font-size: 13px; color: var(--c-text-3); }
 </style>

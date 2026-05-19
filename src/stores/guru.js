@@ -108,6 +108,15 @@ export const useGuruStore = defineStore('guru', () => {
     return res.json()
   }
 
+  async function deleteUjian (id) {
+    const res = await fetch(`${baseUrl.value}/guru/ujian/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || 'Gagal menghapus ujian')
+    }
+    return res.json()
+  }
+
   async function updateUjianStatus (id, status) {
     const res = await fetch(`${baseUrl.value}/guru/ujian/${id}/status`, {
       method: 'PATCH',
@@ -140,7 +149,7 @@ export const useGuruStore = defineStore('guru', () => {
     serverInfo, soalList, ujianList, isLoading, error,
     baseUrl, totalSoal, totalUjian, ujianAktif,
     fetchServerInfo, fetchSoal, createSoal, updateSoal, deleteSoal,
-    fetchUjian, createUjian, updateUjianStatus, fetchMonitor, fetchHasil,
+    fetchUjian, createUjian, deleteUjian, updateUjianStatus, fetchMonitor, fetchHasil,
     fetchDetailPeserta, simpanNilaiEssay
   }
 })

@@ -1,99 +1,132 @@
 <template>
-  <q-page padding>
-    <div class="text-h5 text-primary q-mb-lg">Dashboard</div>
+  <q-page padding class="db-page">
 
-    <!-- Stat Cards -->
-    <div class="row q-gutter-md q-mb-lg">
-      <div class="col-12 col-sm-3">
-        <q-card flat bordered>
-          <q-card-section class="row items-center no-wrap">
-            <q-icon name="quiz" size="40px" color="primary" class="q-mr-md" />
-            <div>
-              <div class="text-h4 text-primary text-weight-bold">{{ guruStore.totalSoal }}</div>
-              <div class="text-caption text-grey-7">Total Soal</div>
+    <!-- ── HEADER ─────────────────────────────────────── -->
+    <div class="db-page-header q-mb-xl">
+      <h1 class="db-page-title">Dashboard</h1>
+      <p class="db-page-sub">Selamat datang di panel kontrol ujian</p>
+    </div>
+
+    <!-- ── STAT CARDS ─────────────────────────────────── -->
+    <div class="row q-col-gutter-md q-mb-xl">
+
+      <!-- Total Soal -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="db-stat-card db-stat-blue">
+          <div class="db-stat-top">
+            <div class="db-stat-icon-wrap db-icon-blue">
+              <q-icon name="quiz" size="20px" color="white" />
             </div>
-          </q-card-section>
-        </q-card>
+            <div class="db-stat-badge db-badge-blue">Soal</div>
+          </div>
+          <div class="db-stat-number">{{ guruStore.totalSoal }}</div>
+          <div class="db-stat-label">Total Soal di Bank</div>
+          <div class="db-stat-bar db-bar-blue" />
+        </div>
       </div>
 
-      <div class="col-12 col-sm-3">
-        <q-card flat bordered>
-          <q-card-section class="row items-center no-wrap">
-            <q-icon name="assignment" size="40px" color="secondary" class="q-mr-md" />
-            <div>
-              <div class="text-h4 text-secondary text-weight-bold">{{ guruStore.totalUjian }}</div>
-              <div class="text-caption text-grey-7">Total Ujian</div>
+      <!-- Total Ujian -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="db-stat-card db-stat-green">
+          <div class="db-stat-top">
+            <div class="db-stat-icon-wrap db-icon-green">
+              <q-icon name="assignment" size="20px" color="white" />
             </div>
-          </q-card-section>
-        </q-card>
+            <div class="db-stat-badge db-badge-green">Ujian</div>
+          </div>
+          <div class="db-stat-number">{{ guruStore.totalUjian }}</div>
+          <div class="db-stat-label">Total Ujian Dibuat</div>
+          <div class="db-stat-bar db-bar-green" />
+        </div>
       </div>
 
-      <div class="col-12 col-sm-3">
-        <q-card flat bordered>
-          <q-card-section class="row items-center no-wrap">
-            <q-icon name="play_circle" size="40px" color="positive" class="q-mr-md" />
-            <div>
-              <div class="text-h4 text-positive text-weight-bold">{{ guruStore.ujianAktif }}</div>
-              <div class="text-caption text-grey-7">Ujian Aktif</div>
+      <!-- Ujian Aktif -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="db-stat-card db-stat-orange">
+          <div class="db-stat-top">
+            <div class="db-stat-icon-wrap db-icon-orange">
+              <q-icon name="play_circle" size="20px" color="white" />
             </div>
-          </q-card-section>
-        </q-card>
+            <div class="db-stat-badge db-badge-orange">Live</div>
+          </div>
+          <div class="db-stat-number">{{ guruStore.ujianAktif }}</div>
+          <div class="db-stat-label">Ujian Sedang Aktif</div>
+          <div class="db-stat-bar db-bar-orange" />
+        </div>
       </div>
 
-      <!-- Server Info -->
-      <div class="col-12 col-sm-3">
-        <q-card flat bordered class="bg-primary text-white">
-          <q-card-section>
-            <div class="text-caption text-white q-mb-xs opacity-70">IP Server Guru</div>
-            <div class="text-h5 text-weight-bold">{{ guruStore.serverInfo.ip }}</div>
-            <div class="text-caption opacity-80">Port {{ guruStore.serverInfo.port }}</div>
-            <q-btn
-              flat
-              dense
-              color="white"
-              icon="copy_all"
-              label="Salin IP"
-              size="sm"
-              class="q-mt-sm"
-              @click="copyIP"
-            />
-          </q-card-section>
-        </q-card>
+      <!-- Server IP -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="db-server-card">
+          <!-- Decorative circles -->
+          <div class="db-server-circle db-server-circle-1" />
+          <div class="db-server-circle db-server-circle-2" />
+
+          <div class="db-server-inner">
+            <div class="row items-center justify-between q-mb-sm">
+              <div class="db-server-icon-wrap">
+                <q-icon name="dns" size="18px" color="white" />
+              </div>
+              <div class="db-server-status-dot">
+                <span class="db-dot-pulse" />
+                <span class="db-server-status-text">Online</span>
+              </div>
+            </div>
+
+            <div class="db-server-ip-label">IP Server Guru</div>
+            <div class="db-server-ip">{{ guruStore.serverInfo.ip }}</div>
+
+            <div class="db-server-footer">
+              <div class="db-server-port-pill">
+                <q-icon name="settings_ethernet" size="12px" class="q-mr-xs" />
+                Port {{ guruStore.serverInfo.port }}
+              </div>
+              <q-btn
+                flat dense
+                icon="copy_all"
+                label="Salin"
+                size="xs"
+                class="db-copy-btn"
+                @click="copyIP"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Aksi Cepat -->
-    <div class="text-h6 q-mb-md">Aksi Cepat</div>
-    <div class="row q-gutter-md q-mb-xl">
+    <!-- ── AKSI CEPAT ──────────────────────────────────── -->
+    <div class="db-section-title q-mb-md">Aksi Cepat</div>
+    <div class="row q-gutter-sm q-mb-xl">
       <q-btn
         unelevated
-        color="primary"
         icon="add"
         label="Buat Soal Baru"
         to="/bank-soal"
         size="md"
+        class="db-btn-primary"
       />
       <q-btn
         unelevated
-        color="secondary"
         icon="add_task"
         label="Buat Ujian Baru"
         to="/buat-ujian"
         size="md"
+        class="db-btn-glass"
       />
       <q-btn
         unelevated
-        color="grey-7"
         icon="settings"
         label="Pengaturan"
         to="/settings"
         size="md"
+        class="db-btn-glass"
       />
     </div>
 
-    <!-- Daftar Ujian Terbaru -->
-    <div class="text-h6 q-mb-md">Ujian Terbaru</div>
-    <q-card flat bordered>
+    <!-- ── UJIAN TERBARU ───────────────────────────────── -->
+    <div class="db-section-title q-mb-md">Ujian Terbaru</div>
+    <div class="db-table-card">
       <q-table
         :rows="guruStore.ujianList"
         :columns="ujianColumns"
@@ -102,30 +135,28 @@
         :loading="guruStore.isLoading"
         no-data-label="Belum ada ujian dibuat"
         :pagination="{ rowsPerPage: 5 }"
+        class="db-table"
       >
         <template #body-cell-status="props">
           <q-td :props="props">
-            <q-badge :color="statusColor(props.value)" :label="props.value" />
+            <span :class="['db-status-pill', `db-status-${props.value}`]">{{ props.value }}</span>
           </q-td>
         </template>
         <template #body-cell-aksi="props">
           <q-td :props="props">
             <q-btn
               v-if="props.row.status === 'draft'"
-              flat
-              dense
+              flat dense
               icon="play_arrow"
               label="Aktifkan"
               size="sm"
-              color="positive"
               :loading="changingStatus[props.row.id]"
-              class="q-mr-xs"
+              class="db-act-aktif q-mr-xs"
               @click="changeStatus(props.row, 'aktif')"
             />
             <q-btn
               v-if="props.row.status === 'aktif'"
-              flat
-              dense
+              flat dense
               icon="monitor"
               label="Monitor"
               size="sm"
@@ -134,19 +165,16 @@
             />
             <q-btn
               v-if="props.row.status === 'aktif'"
-              flat
-              dense
+              flat dense
               icon="stop_circle"
               label="Selesai"
               size="sm"
-              color="negative"
               :loading="changingStatus[props.row.id]"
-              class="q-mr-xs"
+              class="db-act-selesai q-mr-xs"
               @click="changeStatus(props.row, 'selesai')"
             />
             <q-btn
-              flat
-              dense
+              flat dense
               icon="bar_chart"
               label="Hasil"
               size="sm"
@@ -156,7 +184,7 @@
           </q-td>
         </template>
       </q-table>
-    </q-card>
+    </div>
   </q-page>
 </template>
 
@@ -227,52 +255,407 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.monitor-btn {
-  color: var(--c-accent) !important;
-  border: 1px solid var(--c-accent) !important;
-  border-radius: 8px !important;
-  padding: 4px 12px !important;
+/* ── PAGE ──────────────────────────────────────────────── */
+.db-page-title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(90deg, #1a5fa8, #0095C8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+.db-page-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--c-text-2);
+}
+.db-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--c-text-3);
+}
+
+/* ── STAT CARD BASE — M3 Surface + Elevation ────────────── */
+.db-stat-card,
+.db-server-card {
+  border-radius: var(--radius-xl);
+  padding: 20px 20px 0;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 148px;
+  display: flex;
+  flex-direction: column;
+}
+:global(.body--light) .db-stat-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--m3-elev-1);
+}
+:global(.body--dark) .db-stat-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--m3-elev-2);
+}
+.db-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--m3-elev-3) !important;
+}
+
+/* ── CARD TOP ROW (icon + badge) ────────────────────────── */
+.db-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.db-stat-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.db-icon-blue   { background: #1a5fa8; }
+.db-icon-green  { background: #1B6B3A; }
+.db-icon-orange { background: #875200; }
+:global(.body--dark) .db-icon-blue   { background: #00497D; }
+:global(.body--dark) .db-icon-green  { background: #003918; }
+:global(.body--dark) .db-icon-orange { background: #3A1F00; }
+
+/* Badge kecil kanan atas */
+.db-stat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.db-badge-blue   { background: var(--c-accent-soft); color: var(--c-accent); }
+.db-badge-green  { background: var(--c-success-bg);  color: var(--c-success); }
+.db-badge-orange { background: var(--c-warning-bg);  color: var(--c-warning); }
+
+/* ── BIG NUMBER ─────────────────────────────────────────── */
+.db-stat-number {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+}
+.db-stat-blue   .db-stat-number { color: var(--c-accent); }
+.db-stat-green  .db-stat-number { color: var(--c-success); }
+.db-stat-orange .db-stat-number { color: var(--c-warning); }
+
+.db-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-2);
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+/* ── BOTTOM ACCENT BAR ──────────────────────────────────── */
+.db-stat-bar {
+  height: 4px;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  margin: 0 -20px;
+  margin-top: auto;
+}
+.db-bar-blue   { background: var(--c-accent); }
+.db-bar-green  { background: var(--c-success); }
+.db-bar-orange { background: var(--c-warning); }
+
+/* ── SERVER CARD — M3 Primary Container style ────────────── */
+.db-server-card {
+  background: #1a5fa8 !important;
+  border: none !important;
+  box-shadow: var(--m3-elev-2) !important;
+  position: relative;
+  overflow: hidden;
+  padding: 0 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+:global(.body--dark) .db-server-card {
+  background: #003060 !important;
+  border: 1px solid #004080 !important;
+}
+.db-server-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--m3-elev-3) !important;
+}
+
+.db-server-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+.db-server-circle-1 {
+  width: 120px;
+  height: 120px;
+  top: -40px;
+  right: -30px;
+}
+.db-server-circle-2 {
+  width: 80px;
+  height: 80px;
+  bottom: -20px;
+  left: -20px;
+  background: rgba(255,255,255,0.04);
+}
+
+.db-server-inner {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.db-server-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-server-status-dot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.db-dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
+  animation: pulse-green 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-green {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+  70%  { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+}
+.db-server-status-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.3px;
+}
+
+.db-server-ip-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 4px;
+  margin-top: 14px;
+}
+.db-server-ip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.db-server-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.db-server-port-pill {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.db-copy-btn {
+  border-radius: var(--radius-md) !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
-  font-size: 12px !important;
+  padding: 3px 10px !important;
+  color: white !important;
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
   transition: all 0.2s !important;
 }
-
-:global(.body--dark) .monitor-btn {
-  color: var(--c-accent-2) !important;
-  border-color: var(--c-accent) !important;
-  box-shadow: 0 0 8px rgba(76, 110, 245, 0.4),
-              0 0 16px rgba(76, 110, 245, 0.15) !important;
-  text-shadow: 0 0 8px rgba(124, 157, 255, 0.8) !important;
+.db-copy-btn:hover {
+  background: rgba(255,255,255,0.25) !important;
 }
 
-:global(.body--dark) .monitor-btn:hover {
-  background: rgba(76, 110, 245, 0.15) !important;
-  box-shadow: 0 0 12px rgba(76, 110, 245, 0.6),
-              0 0 24px rgba(76, 110, 245, 0.25) !important;
-  text-shadow: 0 0 10px rgba(124, 157, 255, 1) !important;
+/* ── ACTION BUTTONS — M3 Filled & Tonal ─────────────────── */
+.db-btn-primary {
+  background: var(--c-accent) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 20px !important;
+  padding: 0 20px !important;
+  box-shadow: var(--m3-elev-1) !important;
+  transition: all 0.2s !important;
 }
+.db-btn-primary:hover {
+  background: var(--c-accent-hover) !important;
+  box-shadow: var(--m3-elev-2) !important;
+}
+
+.db-btn-glass {
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  padding: 0 20px !important;
+  transition: all 0.2s !important;
+}
+:global(.body--light) .db-btn-glass {
+  background: var(--c-accent-soft) !important;
+  border: none !important;
+  color: var(--c-accent) !important;
+}
+:global(.body--dark) .db-btn-glass {
+  background: var(--c-accent-soft) !important;
+  border: none !important;
+  color: var(--c-accent) !important;
+}
+.db-btn-glass:hover {
+  filter: brightness(0.95) !important;
+}
+
+/* ── TABLE CARD — M3 Surface ─────────────────────────────── */
+.db-table-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+:global(.body--light) .db-table-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--m3-elev-1);
+}
+:global(.body--dark) .db-table-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--m3-elev-2);
+}
+
+:deep(.db-table .q-table__top),
+:deep(.db-table thead th) {
+  background: transparent !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  color: var(--c-text-3) !important;
+}
+:deep(.db-table thead tr) {
+  border-bottom: 1px solid var(--c-border) !important;
+}
+:deep(.db-table tbody tr) {
+  transition: background 0.15s ease !important;
+}
+:global(.body--light) :deep(.db-table tbody tr:hover td) {
+  background: var(--c-surface-2) !important;
+}
+:global(.body--dark) :deep(.db-table tbody tr:hover td) {
+  background: var(--c-surface-2) !important;
+}
+:deep(.db-table tbody td) {
+  border-bottom: 1px solid var(--c-border) !important;
+  font-size: 13px !important;
+}
+
+/* ── STATUS PILLS ──────────────────────────────────────── */
+.db-status-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+}
+.db-status-aktif {
+  background: var(--c-success-bg);
+  color: var(--c-success);
+  border: 1px solid var(--c-success);
+}
+.db-status-selesai {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  border: 1px solid var(--c-accent);
+}
+.db-status-draft {
+  color: var(--c-text-3);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+
+/* ── ROW ACTION BUTTONS ────────────────────────────────── */
+.monitor-btn {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 3px 10px !important;
+  transition: all 0.2s !important;
+  background: var(--c-accent-soft) !important;
+  border: none !important;
+  color: var(--c-accent) !important;
+}
+.monitor-btn:hover { filter: brightness(0.95) !important; }
 
 .hasil-btn {
-  color: #1a6b3c !important;
-  border: 1px solid #1a6b3c !important;
-  border-radius: 8px !important;
-  padding: 4px 12px !important;
-  font-weight: 600 !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 3px 10px !important;
   transition: all 0.2s !important;
+  background: var(--c-success-bg) !important;
+  border: none !important;
+  color: var(--c-success) !important;
+}
+.hasil-btn:hover { filter: brightness(0.95) !important; }
+
+.db-act-aktif {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 3px 10px !important;
+  transition: all 0.2s !important;
+  background: var(--c-success-bg) !important;
+  border: none !important;
+  color: var(--c-success) !important;
 }
 
-:global(.body--dark) .hasil-btn {
-  color: #4ade80 !important;
-  border-color: #22c55e !important;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4),
-              0 0 16px rgba(74, 222, 128, 0.15) !important;
-  text-shadow: 0 0 8px rgba(74, 222, 128, 0.8) !important;
+.db-act-selesai {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 3px 10px !important;
+  transition: all 0.2s !important;
+  background: var(--c-danger-bg) !important;
+  border: none !important;
+  color: var(--c-danger) !important;
 }
-
-:global(.body--dark) .hasil-btn:hover {
-  background: rgba(74, 222, 128, 0.12) !important;
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.6),
-              0 0 24px rgba(74, 222, 128, 0.25) !important;
-}
+.db-act-selesai:hover { filter: brightness(0.95) !important; }
 </style>
