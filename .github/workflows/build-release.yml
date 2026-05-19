@@ -45,18 +45,22 @@ jobs:
       - name: Build Guru (Linux)
         run: npm run build:guru:linux
 
+      - name: Upload Guru Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-guru
+          path: dist/electron/*.AppImage
+          if-no-files-found: error
+
       - name: Build Siswa (Linux)
         run: npm run build:siswa:linux
 
-      - name: List output files
-        run: find dist/electron -maxdepth 2 -type f | head -20
-
-      - name: Upload Linux artifacts
+      - name: Upload Siswa Linux
         uses: actions/upload-artifact@v4
         with:
-          name: linux-installers
+          name: linux-siswa
           path: dist/electron/*.AppImage
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ─────────────────────────────────────────────
   # BUILD WINDOWS (NSIS Installer)
@@ -82,19 +86,22 @@ jobs:
       - name: Build Guru (Windows)
         run: npm run build:guru:win
 
+      - name: Upload Guru Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-guru
+          path: dist/electron/*.exe
+          if-no-files-found: error
+
       - name: Build Siswa (Windows)
         run: npm run build:siswa:win
 
-      - name: List output files
-        run: Get-ChildItem -Recurse dist/electron -Depth 2 | Select-Object FullName
-        shell: pwsh
-
-      - name: Upload Windows artifacts
+      - name: Upload Siswa Windows
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installers
+          name: windows-siswa
           path: dist/electron/*.exe
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ─────────────────────────────────────────────
   # BUILD MACOS (DMG — Apple Silicon arm64)
@@ -120,18 +127,22 @@ jobs:
       - name: Build Guru (macOS)
         run: npm run build:guru:mac
 
+      - name: Upload Guru macOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-guru
+          path: dist/electron/*.dmg
+          if-no-files-found: error
+
       - name: Build Siswa (macOS)
         run: npm run build:siswa:mac
 
-      - name: List output files
-        run: find dist/electron -maxdepth 2 -type f | head -20
-
-      - name: Upload macOS artifacts
+      - name: Upload Siswa macOS
         uses: actions/upload-artifact@v4
         with:
-          name: macos-installers
+          name: macos-siswa
           path: dist/electron/*.dmg
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ─────────────────────────────────────────────
   # BUAT GITHUB RELEASE
@@ -150,12 +161,12 @@ jobs:
           merge-multiple: true
 
       - name: List artifacts
-        run: find artifacts -type f
+        run: find artifacts -type f || echo "No artifacts found"
 
       - name: Buat GitHub Release dan upload installer
         uses: softprops/action-gh-release@v2
         with:
           name: "Sios CBE ${{ github.ref_name }}"
-          files: artifacts/*
+          files: artifacts/**
           generate_release_notes: true
           fail_on_unmatched_files: false
