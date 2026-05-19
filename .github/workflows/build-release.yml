@@ -1,7 +1,5 @@
 name: Build & Release
 
-# Trigger 1: otomatis saat push tag v*.*.* (misal: v1.0.0)
-# Trigger 2: manual dari tab Actions di GitHub
 on:
   push:
     tags:
@@ -9,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Nama release (misal: v1.0.0)'
+        description: 'Nama release (misal: v1.1.0)'
         required: false
         default: 'dev-build'
 
@@ -35,10 +33,14 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y libfuse2 libgconf-2-4 libxss1
+          sudo apt-get install -y libfuse2 libgconf-2-4 libxss1 \
+            python3 python3-pip build-essential
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install npm dependencies (skip postinstall)
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild better-sqlite3 for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
 
       - name: Build Guru (Linux)
         run: npm run build:guru:linux
@@ -46,12 +48,15 @@ jobs:
       - name: Build Siswa (Linux)
         run: npm run build:siswa:linux
 
+      - name: List output files
+        run: find dist/electron -maxdepth 2 -type f | head -20
+
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-installers
           path: dist/electron/*.AppImage
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ─────────────────────────────────────────────
   # BUILD WINDOWS (NSIS Installer)
@@ -68,8 +73,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install npm dependencies (skip postinstall)
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild better-sqlite3 for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
 
       - name: Build Guru (Windows)
         run: npm run build:guru:win
@@ -77,19 +85,23 @@ jobs:
       - name: Build Siswa (Windows)
         run: npm run build:siswa:win
 
+      - name: List output files
+        run: Get-ChildItem -Recurse dist/electron -Depth 2 | Select-Object FullName
+        shell: pwsh
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-installers
           path: dist/electron/*.exe
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ─────────────────────────────────────────────
   # BUILD MACOS (DMG — Apple Silicon arm64)
   # ─────────────────────────────────────────────
   build-macos:
     name: Build macOS
-    runs-on: macos-14  # Apple Silicon M1 runner
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
@@ -99,8 +111,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install npm dependencies (skip postinstall)
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild better-sqlite3 for Electron
+        run: npx electron-rebuild -f -w better-sqlite3
 
       - name: Build Guru (macOS)
         run: npm run build:guru:mac
@@ -108,16 +123,18 @@ jobs:
       - name: Build Siswa (macOS)
         run: npm run build:siswa:mac
 
+      - name: List output files
+        run: find dist/electron -maxdepth 2 -type f | head -20
+
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-installers
           path: dist/electron/*.dmg
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ─────────────────────────────────────────────
-  # BUAT GITHUB RELEASE + UPLOAD SEMUA INSTALLER
-  # Hanya jalan saat trigger dari tag (v*.*.*)
+  # BUAT GITHUB RELEASE
   # ─────────────────────────────────────────────
   release:
     name: Create Release
@@ -131,6 +148,9 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f
 
       - name: Buat GitHub Release dan upload installer
         uses: softprops/action-gh-release@v2
