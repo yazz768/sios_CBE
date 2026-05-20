@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-installers
-          path: dist/electron/*.AppImage
+          path: dist/electron/Packaged/*.AppImage
           if-no-files-found: error
 
   # ─────────────────────────────────────────────
@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installers
-          path: dist/electron/*.exe
+          path: dist/electron/Packaged/*.exe
           if-no-files-found: error
 
   # ─────────────────────────────────────────────
@@ -138,7 +138,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-installers
-          path: dist/electron/*.dmg
+          path: dist/electron/Packaged/*.dmg
           if-no-files-found: error
 
   # ─────────────────────────────────────────────
