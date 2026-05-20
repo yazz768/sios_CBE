@@ -96,7 +96,7 @@ export default configure(function (/* ctx */) {
 
         // Native .node files harus di luar asar
         asarUnpack: ['**/*.node'],
-        publish: 'never'
+        publish: null
       }
     }
   }

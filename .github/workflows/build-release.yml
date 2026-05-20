@@ -45,7 +45,13 @@ jobs:
 
       - name: List build output
         if: always()
-        run: find dist/electron -maxdepth 3 -type f 2>/dev/null || echo "No dist/electron directory found"
+        run: |
+          echo "=== dist/ structure ==="
+          find dist -type f 2>/dev/null | head -40 || echo "No dist directory"
+          echo "=== node_modules/.bin/quasar ==="
+          ls -la node_modules/.bin/quasar 2>/dev/null || echo "quasar not found in .bin"
+          echo "=== electron version ==="
+          cat node_modules/electron/package.json 2>/dev/null | grep '"version"' || echo "electron not installed"
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
