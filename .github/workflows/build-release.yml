@@ -5,11 +5,6 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
-    inputs:
-      tag_name:
-        description: 'Nama release (misal: v1.1.0)'
-        required: false
-        default: 'dev-build'
 
 permissions:
   contents: write
@@ -36,7 +31,7 @@ jobs:
           sudo apt-get install -y libfuse2 libxss1 \
             python3 python3-pip build-essential
 
-      - name: Install npm dependencies (skip postinstall)
+      - name: Install npm dependencies
         run: npm ci --ignore-scripts
 
       - name: Rebuild better-sqlite3 for Electron
@@ -45,20 +40,17 @@ jobs:
       - name: Build Guru (Linux)
         run: npm run build:guru:linux
 
-      - name: Upload Guru Linux
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-guru
-          path: dist/electron/*.AppImage
-          if-no-files-found: error
-
       - name: Build Siswa (Linux)
         run: npm run build:siswa:linux
 
-      - name: Upload Siswa Linux
+      - name: List build output
+        if: always()
+        run: find dist/electron -maxdepth 3 -type f 2>/dev/null || echo "No dist/electron directory found"
+
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-siswa
+          name: linux-installers
           path: dist/electron/*.AppImage
           if-no-files-found: error
 
@@ -77,7 +69,7 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install npm dependencies (skip postinstall)
+      - name: Install npm dependencies
         run: npm ci --ignore-scripts
 
       - name: Rebuild better-sqlite3 for Electron
@@ -86,20 +78,18 @@ jobs:
       - name: Build Guru (Windows)
         run: npm run build:guru:win
 
-      - name: Upload Guru Windows
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-guru
-          path: dist/electron/*.exe
-          if-no-files-found: error
-
       - name: Build Siswa (Windows)
         run: npm run build:siswa:win
 
-      - name: Upload Siswa Windows
+      - name: List build output
+        if: always()
+        shell: pwsh
+        run: Get-ChildItem -Recurse dist/electron -ErrorAction SilentlyContinue | Select-Object FullName
+
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-siswa
+          name: windows-installers
           path: dist/electron/*.exe
           if-no-files-found: error
 
@@ -109,6 +99,8 @@ jobs:
   build-macos:
     name: Build macOS
     runs-on: macos-14
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
 
     steps:
       - uses: actions/checkout@v4
@@ -118,7 +110,7 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install npm dependencies (skip postinstall)
+      - name: Install npm dependencies
         run: npm ci --ignore-scripts
 
       - name: Rebuild better-sqlite3 for Electron
@@ -126,25 +118,18 @@ jobs:
 
       - name: Build Guru (macOS)
         run: npm run build:guru:mac
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: Upload Guru macOS
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-guru
-          path: dist/electron/*.dmg
-          if-no-files-found: error
 
       - name: Build Siswa (macOS)
         run: npm run build:siswa:mac
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload Siswa macOS
+      - name: List build output
+        if: always()
+        run: find dist/electron -maxdepth 3 -type f 2>/dev/null || echo "No dist/electron directory found"
+
+      - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-siswa
+          name: macos-installers
           path: dist/electron/*.dmg
           if-no-files-found: error
 
